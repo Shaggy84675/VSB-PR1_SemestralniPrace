@@ -85,8 +85,8 @@ int main()
 		case 8:
 			//CheckRoomsIntegrity(rooms_path, rooms);
 			//CheckReservationsIntegrity(reservations_path, reservations);
-			//PrintReservationsTable(rooms, reservations);
-			PrintFreeRooms(rooms, reservations);
+			PrintReservationsTable(rooms, reservations);
+			//PrintFreeRooms(rooms, reservations);
 			//cout << CheckIDDuplicity(100, rooms);
 			//cout << FindRoomIndex(304, rooms);
 

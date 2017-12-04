@@ -267,8 +267,6 @@ bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data)
 	return false;
 }
 
-
-
 void PrintReservationsTable(vector <struct Reservation> &data)
 {
 	cout << "+" << setw(27) << setfill('-') << "+" << endl;
@@ -280,9 +278,19 @@ void PrintReservationsTable(vector <struct Reservation> &data)
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
 		stringstream date;
-		date << data[i].day << "." << data[i].month << "." << data[i].year;
-		cout << left << "| " << setw(7) << setfill(' ') << data[i].id
-			<< left << "| " << setw(16) << setfill(' ') << date.str() << "|" << endl;
+
+		cout << left << "| " << setw(7) << setfill(' ') << data[i].id;
+
+		if (data[i].day == 0 || data[i].month == 0 || data[i].year == 0)
+		{
+			date << " - ";
+		}
+		else
+		{
+			date << data[i].day << "." << data[i].month << "." << data[i].year;
+		}		
+		
+		cout << left << "| " << setw(16) << setfill(' ') << date.str() << "|" << endl;
 	}
 	cout << "+" << setw(27) << setfill('-') << right << "+" << endl;
 }
@@ -292,9 +300,6 @@ bool FillReservationsStructure(string &path, vector <struct Reservation> &data)
 	ifstream reservations_file;
 	Reservation reservation;
 	string s;
-
-	int id;
-	short day, month, year;
 
 	reservations_file.open(path);
 
@@ -312,28 +317,24 @@ bool FillReservationsStructure(string &path, vector <struct Reservation> &data)
 			return false;
 
 		getline(line, s, ';');
-		id = atoi(s.c_str());
-		if (id < 1 || id > 999999)
+		reservation.id = atoi(s.c_str());
+		if (reservation.id < 1 || reservation.id > 999999)
 			return false;
-		reservation.id = id;
 
 		getline(line, s, '.');
-		day = atoi(s.c_str());
-		if (day < 0 || day > 31 || s == "")
+		reservation.day = atoi(s.c_str());
+		if (reservation.day < 0 || reservation.day > 31 || s == "")
 			return false;
-		reservation.day = day;
 
 		getline(line, s, '.');
-		month = atoi(s.c_str());
-		if (month < 0 || month > 12 || s == "")
+		reservation.month = atoi(s.c_str());
+		if (reservation.month < 0 || reservation.month > 12 || s == "")
 			return false;
-		reservation.month = month;
 
 		getline(line, s, '.');
-		year = atoi(s.c_str());
-		if (year < 0 || year > 9999 || s == "")
+		reservation.year = atoi(s.c_str());
+		if (reservation.year < 0 || reservation.year > 9999 || s == "")
 			return false;
-		reservation.year = year;		
 
 		data.push_back(reservation);
 	}
