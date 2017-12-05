@@ -55,8 +55,20 @@ int main()
 			return 0;
 			system("PAUSE");
 			break;
-		case 1:			
-			BookRoom(reservations_path, rooms, reservations);
+		case 1:
+			PrintRoomsTable(rooms);
+			if (MakeReservation(reservations_path, rooms, reservations))
+			{
+				cout << CREATERESERVATION_SUCCESS << endl;
+			}
+			cout << endl;
+			break;
+		case 2:
+			PrintReservationsTable(rooms, reservations);
+			if (CancelReservation(reservations_path, rooms, reservations))
+			{
+				cout << CANCELRESERVATION_SUCCESS << endl;
+			}
 			cout << endl;
 			break;
 		case 4:
@@ -85,11 +97,8 @@ int main()
 		case 8:
 			//CheckRoomsIntegrity(rooms_path, rooms);
 			//CheckReservationsIntegrity(reservations_path, reservations);
-			PrintReservationsTable(rooms, reservations);
-			//PrintFreeRooms(rooms, reservations);
 			//cout << CheckIDDuplicity(100, rooms);
 			//cout << FindRoomIndex(304, rooms);
-
 			break;
 		}
 	}

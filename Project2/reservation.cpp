@@ -10,6 +10,92 @@
 #include <cstdio>
 
 
+int FindReservationIndex(int id, short day, short month, short year, vector <struct Reservation> &data)
+{
+	for (unsigned int i = 0; i < data.size(); i++)
+	{
+		if (data[i].id == id &&
+			data[i].day == day &&
+			data[i].month == month &&
+			data[i].year == year)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+{
+	Room room;
+	Reservation reservation;
+	string fulldate;
+
+	cout << CANCELRESERVATION_INP_ROOMNUM;
+	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), CANCELRESERVATION_INP_ROOMNUM);
+
+	reservation.id = FindRoomID(room.room_number, rooms_data);
+
+	if (reservation.id == -1)
+	{
+		cout << ROOM_NOT_FOUND_ERR << endl;
+		return false;
+	}
+
+	while (true)
+	{
+		cout << CANCELRESERVATION_INP_DATE << endl;
+
+		cin.ignore();
+		getline(cin, fulldate);
+
+		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
+
+		if ((reservation.day > 31 || reservation.day < 0) || (reservation.month > 12 || reservation.month < 0) || (reservation.year < 2000 || reservation.year > 9999))
+		{
+			cout << INP_DATE_INVALID << endl;
+			continue;
+		}
+		break;
+	}
+
+	if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
+	{
+		cout << CANCELRESERVATION_NOT_RESERVED;
+		return false;
+	}
+
+	cout << CANCELRESERVATION_INP_CONFIRM(room.room_number);
+
+	if (YesNoCheck())
+	{
+		if (!CheckReservationsIntegrity(path, reservations_data))
+		{
+			return false;
+		}
+
+		int index = FindReservationIndex(reservation.id, reservation.day, reservation.month, reservation.year, reservations_data);
+
+		if (index == -1)
+		{
+			return false;
+		}
+
+		reservations_data.erase(reservations_data.begin() + index);
+
+		if (!SaveReservationsStructure(path, reservations_data))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		cout << CANCELRESERVATION_CANCELED << endl;
+		return false;
+	}
+	return true;
+}
+
 bool IsRoomFree(int room_id, short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
 {
 	for (unsigned int i = 0; i < reservations_data.size(); i++)
@@ -25,15 +111,15 @@ bool IsRoomFree(int room_id, short day, short month, short year, vector <struct 
 	return true;
 }
 
-bool BookRoom(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
 {
 	Room room;
 	Reservation reservation;
 	string fulldate;
 
 
-	cout << BOOKROOM_INP_ROOMNUM;
-	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), BOOKROOM_INP_ROOMNUM);
+	cout << CREATERESERVATION_INP_ROOMNUM;
+	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), CREATERESERVATION_INP_ROOMNUM);
 
 	reservation.id = FindRoomID(room.room_number, rooms_data);
 
@@ -45,7 +131,7 @@ bool BookRoom(string &path, vector <struct Room> &rooms_data, vector <struct Res
 
 	while (true)
 	{
-		cout << BOOKROOM_INP_DATE;
+		cout << CREATERESERVATION_INP_DATE << endl;
 
 		cin.ignore();
 		getline(cin, fulldate);
@@ -54,7 +140,7 @@ bool BookRoom(string &path, vector <struct Room> &rooms_data, vector <struct Res
 
 		if ((reservation.day > 31 || reservation.day < 0) || (reservation.month > 12 || reservation.month < 0) || (reservation.year < 2000 || reservation.year > 9999))
 		{
-			cout << BOOKROOM_INP_DATE_INVALID << endl;
+			cout << INP_DATE_INVALID << endl;
 			continue;
 		}
 		break;
@@ -62,11 +148,11 @@ bool BookRoom(string &path, vector <struct Room> &rooms_data, vector <struct Res
 
 	if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
 	{
-		cout << BOOKROOM_NOT_AVAILABLE;
+		cout << CREATERESERVATION_NOT_AVAILABLE;
 		return false;
 	}
 
-	cout << "Opravdu si prejete rezervovat tuto mistnost?" << endl;
+	cout << CREATERESERVATION_INP_CONFIRM(room.room_number);
 
 	if (YesNoCheck())
 	{
@@ -92,36 +178,11 @@ bool BookRoom(string &path, vector <struct Room> &rooms_data, vector <struct Res
 
 		out.close();
 	}
-	return true;
-}
-
-bool PrintFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
-{
-	cout << "+" << setw(55) << setfill('-') << "+" << endl;
-	cout << "| Mistnost | Patro | Kapacita sedadel | Cena rezervace |" << endl;
-	cout << left << setw(11) << setfill('-') << "+"
-		<< left << setw(8) << setfill('-') << "+"
-		<< left << setw(19) << setfill('-') << "+"
-		<< left << setw(17) << setfill('-') << "+"
-		<< left << "+" << endl;
-
-	for (unsigned int i = 0; i < rooms_data.size(); i++)
+	else
 	{
-		stringstream date;
-		stringstream curr;
-
-		if (reservations_data[i].day == 0 || reservations_data[i].month == 0 || reservations_data[i].year == 0)
-		{
-			curr << rooms_data[i].reservation_price << " " << CURRENCY;
-			cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
-				<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
-				<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
-				<< left << "| " << setw(15) << setfill(' ') << curr.str() << "|" << endl;
-		}
+		cout << CREATERESERVATION_CANCELED << endl;
+		return false;
 	}
-
-	cout << "+" << setw(55) << setfill('-') << right << "+" << endl;
-
 	return true;
 }
 
