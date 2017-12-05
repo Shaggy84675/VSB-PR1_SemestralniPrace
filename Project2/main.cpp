@@ -56,7 +56,7 @@ int main()
 			system("PAUSE");
 			break;
 		case 1:			
-			BookRoom(rooms, reservations);
+			BookRoom(reservations_path, rooms, reservations);
 			cout << endl;
 			break;
 		case 4:

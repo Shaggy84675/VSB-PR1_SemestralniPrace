@@ -30,7 +30,7 @@
 #define REMOVEROOM_INPUT								"Zadejte cislo mistnosti, kterou chcete odstranit: "
 
 #define BOOKROOM_INP_ROOMNUM							"Zadejte cislo mistnosti, kterou si prejete rezervovat: "
-#define BOOKROOM_NOT_AVAILABLE							"Zadana mistnost je jiz bohuzel obsazena"
+#define BOOKROOM_NOT_AVAILABLE							"Zadana mistnost je jiz bohuzel na dany den obsazena"
 #define BOOKROOM_INP_DATE								"Zadejte datum rezervace ve formatu (DD.MM.YYYY) nebo (D.M.YYYY): "
 #define BOOKROOM_INP_DATE_INVALID						"Bylo zadano spatne datum."
 
