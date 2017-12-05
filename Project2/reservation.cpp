@@ -96,21 +96,6 @@ bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <s
 	return true;
 }
 
-bool IsRoomFree(int room_id, short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
-{
-	for (unsigned int i = 0; i < reservations_data.size(); i++)
-	{
-		if (reservations_data[i].id == room_id &&
-			reservations_data[i].day == day &&
-			reservations_data[i].month == month &&
-			reservations_data[i].year == year)
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
 bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
 {
 	Room room;
