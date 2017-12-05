@@ -99,6 +99,8 @@ bool PrintFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation
 
 void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
 {
+	unsigned int records = 0;
+
 	cout << "+" << setw(76) << setfill('-') << "+" << endl;
 	cout << "| Mistnost | Patro | Kapacita sedadel | Cena rezervace | Rezervovana na den |" << endl;
 	cout << left << setw(11) << setfill('-') << "+"
@@ -110,26 +112,45 @@ void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Res
 
 	for (unsigned int i = 0; i < rooms_data.size(); i++)
 	{
-		stringstream date;
 		stringstream curr;
+		records = 0;
 
-		date << reservations_data[i].day << ".";
 		curr << rooms_data[i].reservation_price << " " << CURRENCY;
 		cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
 			<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
 			<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
 			<< left << "| " << setw(15) << setfill(' ') << curr.str();
-		if (date.str() == "0" || reservations_data[i].month == 0 || reservations_data[i].year == 0)
+
+		for (unsigned int j = 0; j < reservations_data.size(); j++)
+		{
+			if (records == 0 && rooms_data[i].id == reservations_data[j].id)
+			{
+				stringstream date;
+				date << reservations_data[j].day << ".";
+				cout << left << "| " << setw(3) << setfill(' ') << date.str()
+					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations_data[j].month)
+					<< left << "  " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
+				records++;
+			}
+			
+			else if (records > 0 && (rooms_data[i].id == reservations_data[j].id))
+			{
+				stringstream date;
+				date << reservations_data[j].day << ".";
+				cout << left << "| " << setw(9) << setfill(' ') << ""
+					<< left << "| " << setw(6) << setfill(' ') << ""
+					<< left << "| " << setw(17) << setfill(' ') << ""
+					<< left << "| " << setw(15) << setfill(' ') << ""
+					<< left << "| " << setw(3) << setfill(' ') << date.str()
+					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations_data[j].month)
+					<< left << "  " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
+			}			
+		}
+
+		if (records == 0)
 		{
 			cout << left << "| " << setw(18) << setfill(' ') << " - " << " |" << endl;
 		}
-		else
-		{
-			cout << left << "| " << setw(3) << setfill(' ') << date.str()
-				<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations_data[i].month)
-				<< left << "  " << setw(4) << setfill(' ') << reservations_data[i].year << " |" << endl;
-		}
-
 	}
 
 	cout << "+" << setw(76) << setfill('-') << right << "+" << endl;

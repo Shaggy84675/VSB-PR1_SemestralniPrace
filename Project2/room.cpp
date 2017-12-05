@@ -8,28 +8,6 @@
 #include <iomanip>
 #include <sstream>
 
-void PrintRoomsTable(vector <struct Room> &data)
-{
-	cout << "+" << setw(71) << setfill('-') << "+" << endl;
-	cout << "|   ID   | Patro | Mistnost | Kapacita sedadel | Cena za den rezervace |" << endl;
-	cout << left << setw(9) << setfill('-') << "+"
-		<< left << setw(8) << setfill('-') << "+"
-		<< left << setw(11) << setfill('-') << "+"
-		<< left << setw(19) << setfill('-') << "+"
-		<< left << setw(24) << setfill('-') << "+"
-		<< left << "+" << endl;
-
-	for (unsigned int i = 0; i < data.size(); i++)
-	{
-		cout << left << "| " << setw(7) << setfill(' ') << data[i].id
-			<< left << "| " << setw(6) << setfill(' ') << data[i].floor
-			<< left << "| " << setw(9) << setfill(' ') << data[i].room_number
-			<< left << "| " << setw(17) << setfill(' ') << data[i].seat_capacity
-			<< left << "| " << setw(22) << setfill(' ') << data[i].reservation_price << "|" << endl;
-	}
-
-	cout << "+" << setw(71) << setfill('-') << right << "+" << endl;
-}
 
 int FindRoomIndex(int room, vector <struct Room> &data)
 {
@@ -84,6 +62,29 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Ro
 	SaveReservationsStructure(reservations_path, reservations_data);
 
 	return true;
+}
+
+void PrintRoomsTable(vector <struct Room> &data)
+{
+	cout << "+" << setw(71) << setfill('-') << "+" << endl;
+	cout << "|   ID   | Patro | Mistnost | Kapacita sedadel | Cena za den rezervace |" << endl;
+	cout << left << setw(9) << setfill('-') << "+"
+		<< left << setw(8) << setfill('-') << "+"
+		<< left << setw(11) << setfill('-') << "+"
+		<< left << setw(19) << setfill('-') << "+"
+		<< left << setw(24) << setfill('-') << "+"
+		<< left << "+" << endl;
+
+	for (unsigned int i = 0; i < data.size(); i++)
+	{
+		cout << left << "| " << setw(7) << setfill(' ') << data[i].id
+			<< left << "| " << setw(6) << setfill(' ') << data[i].floor
+			<< left << "| " << setw(9) << setfill(' ') << data[i].room_number
+			<< left << "| " << setw(17) << setfill(' ') << data[i].seat_capacity
+			<< left << "| " << setw(22) << setfill(' ') << data[i].reservation_price << "|" << endl;
+	}
+
+	cout << "+" << setw(71) << setfill('-') << right << "+" << endl;
 }
 
 bool SaveRoomsStructure(string &path, vector <struct Room> &data)
