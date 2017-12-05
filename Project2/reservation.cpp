@@ -10,40 +10,36 @@
 #include <cstdio>
 
 
-bool IsRoomFree(int room_number, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+bool IsRoomFree(int room_id, short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
 {
-	if (reservations_data[FindRoomIndex(room_number, rooms_data)].day == 0 ||
-		reservations_data[FindRoomIndex(room_number, rooms_data)].month == 0 ||
-		reservations_data[FindRoomIndex(room_number, rooms_data)].year == 0)
+	for (unsigned int i = 0; i < reservations_data.size(); i++)
 	{
-		return true;
+		if (reservations_data[i].id == room_id &&
+			reservations_data[i].day == day &&
+			reservations_data[i].month == month &&
+			reservations_data[i].year == year)
+		{
+			return false;
+		}
 	}
-	return false;
+	return true;
 }
 
-bool BookRoom(vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+bool BookRoom(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
 {
-	int room_index;
-	int room_number;
+	Room room;
+	Reservation reservation;
 	string fulldate;
-	short date;
-	short month;
-	short year;
 
 
 	cout << BOOKROOM_INP_ROOMNUM;
-	GET_INPUT(room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), BOOKROOM_INP_ROOMNUM);
+	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), BOOKROOM_INP_ROOMNUM);
 
-	room_index = FindRoomIndex(room_number, rooms_data);
+	reservation.id = FindRoomID(room.room_number, rooms_data);
 
-	if (room_index == -1)
+	if (reservation.id == -1)
 	{
-		return false;
-	}
-
-	if (!IsRoomFree(room_number, rooms_data, reservations_data))
-	{
-		cout << BOOKROOM_NOT_AVAILABLE;
+		cout << ROOM_NOT_FOUND_ERR << endl;
 		return false;
 	}
 
@@ -54,9 +50,9 @@ bool BookRoom(vector <struct Room> &rooms_data, vector <struct Reservation> &res
 		cin.ignore();
 		getline(cin, fulldate);
 
-		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &date, &month, &year);
+		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
 
-		if ((date > 31 || date < 0) || (month > 12 || month < 0) || (year < 2000 || year > 9999))
+		if ((reservation.day > 31 || reservation.day < 0) || (reservation.month > 12 || reservation.month < 0) || (reservation.year < 2000 || reservation.year > 9999))
 		{
 			cout << BOOKROOM_INP_DATE_INVALID << endl;
 			continue;
@@ -64,6 +60,38 @@ bool BookRoom(vector <struct Room> &rooms_data, vector <struct Reservation> &res
 		break;
 	}
 
+	if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
+	{
+		cout << BOOKROOM_NOT_AVAILABLE;
+		return false;
+	}
+
+	cout << "Opravdu si prejete rezervovat tuto mistnost?" << endl;
+
+	if (YesNoCheck())
+	{
+		ofstream out;
+		out.open(path, ios::app);
+
+		if (!out.is_open())
+		{
+			return false;
+		}
+
+		if (!CheckReservationsIntegrity(path, reservations_data))
+		{
+			return false;
+		}
+
+		reservations_data.push_back(reservation);
+
+		out << reservation.id << ";"
+			<< setw(2) << setfill('0') << reservation.day << "."
+			<< setw(2) << setfill('0') << reservation.month << "."
+			<< setw(4) << setfill('0') << reservation.year << endl;
+
+		out.close();
+	}
 	return true;
 }
 
@@ -277,15 +305,13 @@ bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data)
 			data.clear();
 			FillReservationsStructure(path, data);
 			cout << CHECKROOMINTEGRITY_SUCCESS << endl;
-			return true;
 		}
 		else
 		{
 			SaveReservationsStructure(path, data);
-			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 void PrintReservationsTable(vector <struct Reservation> &data)
@@ -300,17 +326,9 @@ void PrintReservationsTable(vector <struct Reservation> &data)
 	{
 		stringstream date;
 
-		cout << left << "| " << setw(7) << setfill(' ') << data[i].id;
+		date << data[i].day << "." << data[i].month << "." << data[i].year;
 
-		if (data[i].day == 0 || data[i].month == 0 || data[i].year == 0)
-		{
-			date << " - ";
-		}
-		else
-		{
-			date << data[i].day << "." << data[i].month << "." << data[i].year;
-		}		
-		
+		cout << left << "| " << setw(7) << setfill(' ') << data[i].id;			
 		cout << left << "| " << setw(16) << setfill(' ') << date.str() << "|" << endl;
 	}
 	cout << "+" << setw(27) << setfill('-') << right << "+" << endl;
