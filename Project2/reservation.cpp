@@ -1,5 +1,5 @@
 #include "reservation.h"
-#include "messages.h"
+#include "message.h"
 #include "room.h"
 #include "helper.h"
 
