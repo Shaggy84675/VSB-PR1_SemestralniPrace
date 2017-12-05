@@ -9,8 +9,8 @@ using namespace std;
 void PrintOptions()
 {
 	cout << "1 - Rezervovat mistnost" << endl
-		<< "2 - Vyhledat volne mistnosti (NYI)" << endl
-		<< "3 - Exportovat data do HTML (NYI)" << endl
+		<< "2 - Zrusit rezervaci" << endl
+		<< "3 - Vyhledat volne mistnosti (NYI)" << endl
 		<< "4 - Zobrazit tabulku mistnosti" << endl
 		<< "5 - Zobrazit tabulku rezervaci" << endl
 		<< "6 - Pridat novou mistnost" << endl
