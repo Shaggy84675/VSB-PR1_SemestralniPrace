@@ -25,3 +25,4 @@ bool RoomExists(int room, vector <struct Room> &data);
 int FindRoomIndex(int room, vector <struct Room> &data);
 bool CheckRoomsIntegrity(string &path, vector <struct Room> &data);
 bool SaveRoomsStructure(string &path, vector <struct Room> &data);
+int FindRoomID(int room, vector <struct Room> &data);
