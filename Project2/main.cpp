@@ -3,7 +3,7 @@
 #include <chrono>
 #include <cctype>
 
-#include "messages.h"
+#include "message.h"
 #include "room.h"
 #include "reservation.h"
 #include "helper.h"
@@ -38,12 +38,16 @@ int main()
 	if (!FillRoomsStructure(rooms_path, rooms))
 	{
 		cout << TABLE_LOAD_ERR("mistnosti") << endl;
+		cout << PRESS_ANY_KEY << endl;
+		getchar();
 		return 0;
 	}
 
 	if (!FillReservationsStructure(reservations_path, reservations))
 	{
-		cout << TABLE_LOAD_ERR("rezervace") << endl;
+		cout << TABLE_LOAD_ERR("rezervaci") << endl;
+		cout << PRESS_ANY_KEY << endl;
+		getchar();
 		return 0;
 	}
 
@@ -53,7 +57,6 @@ int main()
 		{
 		case 0:
 			return 0;
-			system("PAUSE");
 			break;
 		case 1:
 			PrintRoomsTable(rooms);
@@ -71,6 +74,9 @@ int main()
 			}
 			cout << endl;
 			break;
+		case 3:
+			FindFreeRooms();
+			break;
 		case 4:
 			PrintRoomsTable(rooms);
 			cout << endl;
@@ -80,9 +86,12 @@ int main()
 			cout << endl;
 			break;
 		case 6:
-			AddNewRoom(rooms_path, rooms);
-			cout << endl;
-			PrintRoomsTable(rooms);
+			if (AddNewRoom(rooms_path, rooms))
+			{
+				cout << ADDROOM_SUCCESS << endl;
+				cout << endl;
+				PrintRoomsTable(rooms);
+			}
 			cout << endl;
 			break;
 		case 7:
