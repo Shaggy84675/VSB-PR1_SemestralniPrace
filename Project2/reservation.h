@@ -19,6 +19,7 @@ void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Res
 bool FillReservationsStructure(string &path, vector <struct Reservation> &data);
 bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data);
 bool SaveReservationsStructure(string &path, vector <struct Reservation> &data);
-bool PrintFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
-bool BookRoom(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
+bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
 bool IsRoomFree(int room_number, short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
+int FindReservationIndex(int id, short day, short month, short year, vector <struct Reservation> &data);
+bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
