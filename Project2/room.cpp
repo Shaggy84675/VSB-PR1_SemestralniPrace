@@ -286,13 +286,12 @@ bool CheckRoomsIntegrity(string &path, vector <struct Room> &data)
 			data.clear();
 			FillRoomsStructure(path, data);
 			cout << CHECKROOMINTEGRITY_SUCCESS << endl;
-			return true;
 		}
 		else
 		{
 			SaveRoomsStructure(path, data);
-			return false;
 		}
+		return true;
 	}
 	return false;
 }
