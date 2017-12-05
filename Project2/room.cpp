@@ -9,6 +9,18 @@
 #include <sstream>
 
 
+int FindRoomID(int room, vector <struct Room> &data)
+{
+	for (unsigned int i = 0; i < data.size(); i++)
+	{
+		if (data[i].room_number == room)
+		{
+			return data[i].id;
+		}
+	}
+	return -1;
+}
+
 int FindRoomIndex(int room, vector <struct Room> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
