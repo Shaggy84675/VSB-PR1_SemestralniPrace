@@ -2,12 +2,13 @@
 
 #define ERROR_FILE_NOT_FOUND(filename)					"Neco se nepovedlo :( \nMame problemy nalezt potrebny soubor " << filename << \
 														" umisteny v adresari vstupnidata. \nProsim zkontrolujte dostupnost souboru a zkuste to znovu."
-
-#define TABLE_LOAD_ERR(tablename)						"Neco se nepovedlo :( \nNepodarilo se nacist data tabulky " << tablename << "."
+#define TABLE_LOAD_ERR(tablename)						"Neco se nepovedlo :( \nMame problemy nacist data ze souboru seznam_" << tablename << "."
 #define YES_NO_INP_ERR									"Zadana moznost musi byt typu A - ano, N - ne "
 
 #define INP_ERR											"Byla zadana chybna moznost. \nProsim zadejte nasledujici moznosti: "
-#define INP_DATE_INVALID								"Bylo zadano spatne datum."
+#define INP_DATE_INVALID								"Bylo zadano spatne datum"
+
+#define PRESS_ANY_KEY									"Stisknete libovolnou klavesu pro ukonceni programu..."
 
 //Zpravy pro praci s mistnostmi
 
@@ -15,6 +16,7 @@
 #define ROOM_NOT_FOUND_ERR								"Pozadovanou mistnost se nepodarilo nalezt "
 
 #define ADDROOM_INPUT									"Zadejte cislo mistnosti, kterou chcete pridat: " 
+#define ADDROOM_ROOMNUM_EXISTS(room)					"Mistnost " << room << " jiz v seznamu mistnosti je"
 
 #define ADDROOM_INP_FLOOR								"Zadejte patro mistnosti: "
 #define ADDROOM_INP_FLOOR_ERR(inpmin, inpmax)			"Zadano chybne patro mistnosti \nPatro musi byt v cele cislo v rozmezi od " << inpmin << " do " << inpmax
@@ -25,7 +27,9 @@
 #define ADDROOM_INP_PRICE								"Zadejte cenu za den rezervace mistnosti: "
 #define ADDROOM_INP_PRICE_ERR(inpmax)					"Zadana chybne cena mistnosti \nCena mistnosti musi byt kladne cele cislo do " << inpmax 
 
-#define ADDROOM_INP_CONFIRM								"Prejete si nasledujici mistnost pridat do databaze? (A/N) "				
+#define ADDROOM_INP_CONFIRM								"Prejete si nasledujici mistnost pridat do databaze? (A/N) "
+#define ADDROOM_CANCELED								"Pridani mistnosti bylo zruseno"
+#define ADDROOM_SUCCESS									"Mistnost byla uspesne pridana do seznamu mistnosti"
 
 #define REMOVEROOM_SELECT								"Zadejte kriterium, podle ktereho si prejete mistnost odstranit: \na) ID mistnosti \nb) Cislo mistnosti"
 #define REMOVEROOM_INPUT								"Zadejte cislo mistnosti, kterou chcete odstranit: "
@@ -60,3 +64,4 @@
 
 void WelcomeMessage();
 void PrintOptions();
+void PrintOptions2();

@@ -146,13 +146,13 @@
   <ItemGroup>
     <ClCompile Include="helper.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="messages.cpp" />
+    <ClCompile Include="message.cpp" />
     <ClCompile Include="reservation.cpp" />
     <ClCompile Include="room.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helper.h" />
-    <ClInclude Include="messages.h" />
+    <ClInclude Include="message.h" />
     <ClInclude Include="reservation.h" />
     <ClInclude Include="room.h" />
   </ItemGroup>
