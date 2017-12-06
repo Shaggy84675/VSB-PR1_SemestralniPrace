@@ -44,14 +44,14 @@ bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservatio
 		break;
 	case 'b':
 		cout << SELECTFREEROOMS_PRICE_LOW_INP;
-		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_PRICE_LOW_INP);
+		GET_INPUT(input, ADDROOM_INP_PRICE_ERR(INT_MAX), SELECTFREEROOMS_PRICE_LOW_INP);
 
 		filteredRooms = getRoomsOnPrice(input, filteredRooms);
 		PrintRooms(filteredRooms);
 		break;
 	case 'c':
 		cout << SELECTFREEROOMS_SEATS_INP;
-		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_SEATS_INP);
+		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(INT_MAX), SELECTFREEROOMS_SEATS_INP);
 
 		filteredRooms = getRoomsOnSeats(input, filteredRooms);
 		PrintRooms(filteredRooms);
@@ -325,7 +325,7 @@ bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data)
 	GET_INPUT(room.floor, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), ADDROOM_INP_FLOOR);
 
 	cout << ADDROOM_INP_SEATS;
-	GET_INPUT(room.seat_capacity, ADDROOM_INP_SEATS_ERR(SHRT_MAX), ADDROOM_INP_SEATS);
+	GET_INPUT(room.seat_capacity, ADDROOM_INP_SEATS_ERR(INT_MAX), ADDROOM_INP_SEATS);
 
 	cout << ADDROOM_INP_PRICE;
 	GET_INPUT(room.reservation_price, ADDROOM_INP_PRICE_ERR(INT_MAX), ADDROOM_INP_PRICE);
