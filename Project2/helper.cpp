@@ -1,5 +1,5 @@
 #include "helper.h"
-#include "messages.h"
+#include "message.h"
 
 #include <iostream>
 
@@ -80,6 +80,25 @@ int ShowOptions()
 
 		cout << endl << INP_ERR << endl;
 		PrintOptions();
+	}
+	return option;
+}
+
+char ShowOptions2()
+{
+	char option;
+	PrintOptions2();
+
+	while (!(cin >> option) || (option > LAST_OPTION || option < 'a')) {
+		cin.clear();
+
+		while (cin.get() != '\n')
+		{
+			continue;
+		}
+
+		cout << endl << INP_ERR << endl;
+		PrintOptions2();
 	}
 	return option;
 }

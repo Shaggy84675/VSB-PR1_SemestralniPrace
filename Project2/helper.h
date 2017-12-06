@@ -7,6 +7,7 @@
 #include <string>
 
 #define NUMBER_OF_OPTIONS 8
+#define LAST_OPTION 'd'
 #define CURRENCY "CZK"
 
 #define GET_INPUT(var, msg1, msg2) \
@@ -24,3 +25,4 @@ string GetMonthName(int month);
 
 int ShowOptions();
 bool YesNoCheck();
+char ShowOptions2();
