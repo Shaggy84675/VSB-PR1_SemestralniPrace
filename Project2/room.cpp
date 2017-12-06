@@ -1,5 +1,5 @@
 #include "room.h"
-#include "messages.h"
+#include "message.h"
 #include "reservation.h"
 #include "helper.h"
 
@@ -8,6 +8,130 @@
 #include <iomanip>
 #include <sstream>
 
+
+
+bool PrintFreeRooms(short param1, vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data, Filter filter)
+{
+	
+	cout << "+" << setw(62) << setfill('-') << "+" << endl;
+	cout << "| Mistnost | Patro | Kapacita sedadel | Cena za den rezervace |" << endl;
+	cout << left << setw(11) << setfill('-') << "+"
+		<< left << setw(8) << setfill('-') << "+"
+		<< left << setw(19) << setfill('-') << "+"
+		<< left << setw(24) << setfill('-') << "+"
+		<< left << "+" << endl;
+
+	switch (filter)
+	{
+	case Filter::PRICE:
+		for (unsigned int i = 0; i < rooms_data.size(); i++)
+		{
+			if (IsRoomFree(rooms_data[i].id, reservation_data) && rooms_data[i].reservation_price == param1)
+			{
+				cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
+					<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
+					<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
+					<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
+			}
+		}
+		break;
+	case Filter::SEATS:
+		for (unsigned int i = 0; i < rooms_data.size(); i++)
+		{
+			if (IsRoomFree(rooms_data[i].id, reservation_data) && rooms_data[i].seat_capacity == param1)
+			{
+				cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
+					<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
+					<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
+					<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
+			}
+		}
+		break;
+	default:
+		for (unsigned int i = 0; i < rooms_data.size(); i++)
+		{
+			if (IsRoomFree(rooms_data[i].id, reservation_data) && rooms_data[i].floor == param1)
+			{
+				cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
+					<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
+					<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
+					<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
+			}
+		}
+		break;
+	}
+
+	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
+
+	return false; 
+}
+
+bool PrintFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
+{
+	cout << "+" << setw(62) << setfill('-') << "+" << endl;
+	cout << "| Mistnost | Patro | Kapacita sedadel | Cena za den rezervace |" << endl;
+	cout << left << setw(11) << setfill('-') << "+"
+		<< left << setw(8) << setfill('-') << "+"
+		<< left << setw(19) << setfill('-') << "+"
+		<< left << setw(24) << setfill('-') << "+"
+		<< left << "+" << endl;	
+
+	for (unsigned int i = 0; i < rooms_data.size(); i++)
+	{
+		if (IsRoomFree(rooms_data[i].id, reservation_data))
+		{
+			cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
+				<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor				
+				<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
+				<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
+		}
+	}
+
+	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
+
+	/*switch (ShowOptions2())
+	{
+		case 'q':
+			break;
+		case 'a':
+			break;
+		case 'b':
+			break;
+		case 'c':
+			break;
+		case 'd':
+			break;
+	}
+	return false;*/
+	return false;
+}
+
+bool IsRoomFree(int room_id, short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+{
+	for (unsigned int i = 0; i < reservations_data.size(); i++)
+	{
+		if (reservations_data[i].id == room_id &&
+			reservations_data[i].day == day &&
+			reservations_data[i].month == month &&
+			reservations_data[i].year == year)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool IsRoomFree(int room_id, vector <struct Reservation> &reservation_data)
+{
+	for (unsigned int i = 0; i < reservation_data.size(); i++)
+	{
+		if (reservation_data[i].id == room_id)
+		{
+			return false;
+		}
+	}
+	return true;
+}
 
 int FindRoomID(int room, vector <struct Room> &data)
 {
@@ -36,6 +160,7 @@ int FindRoomIndex(int room, vector <struct Room> &data)
 bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
 {
 	int index;
+	int room_id;
 	int remove_what;
 
 	PrintRoomsTable(rooms_data);
@@ -53,6 +178,7 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Ro
 	}
 
 	index = FindRoomIndex(remove_what, rooms_data);
+	room_id = FindRoomID(remove_what, rooms_data);
 
 	if (index == -1)
 	{
@@ -61,15 +187,15 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Ro
 	}
 
 	rooms_data.erase(rooms_data.begin() + index);
-
-	/*for (unsigned int i = 0; i < reservations_data.size(); i++)
+	
+	for (unsigned int i = 0; i < reservations_data.size(); i++)
 	{
-		if (reservations_data[i].id == index)
+		if (reservations_data[i].id == room_id)
 		{
 			reservations_data.erase(reservations_data.begin() + i);
 		}
-	}	*/
-
+	}
+	
 	SaveRoomsStructure(rooms_path, rooms_data);
 	SaveReservationsStructure(reservations_path, reservations_data);
 
@@ -138,6 +264,12 @@ bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data)
 	cout << ADDROOM_INPUT;
 	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), ADDROOM_INPUT);
 
+	if (RoomExists(room.room_number, rooms_data))
+	{
+		cout << ADDROOM_ROOMNUM_EXISTS(room.room_number) << endl;
+		return false;
+	}
+
 	cout << ADDROOM_INP_FLOOR;
 	GET_INPUT(room.floor, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), ADDROOM_INP_FLOOR);
 
@@ -156,16 +288,15 @@ bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data)
 
 	if (YesNoCheck())
 	{
-		CheckRoomsIntegrity(rooms_path, rooms_data);
-
 		ofstream out_rooms;
-
 		out_rooms.open(rooms_path, ios::app);
 
 		if (!out_rooms.is_open())
 		{
 			return false;
 		}
+
+		CheckRoomsIntegrity(rooms_path, rooms_data);		
 
 		room.id = rooms_data.back().id + 1;
 
@@ -181,6 +312,7 @@ bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data)
 	}
 	else
 	{
+		cout << ADDROOM_CANCELED << endl;
 		return false;
 	}
 
