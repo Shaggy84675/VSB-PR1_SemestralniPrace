@@ -10,9 +10,35 @@
 
 
 
-bool PrintFreeRooms(short param1, vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data, Filter filter)
+bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
 {
+	auto filteredRooms = getFreeRooms(rooms_data, reservation_data);
 	
+	switch (ShowSubMenu())
+	{
+	case 'q':
+		break;
+	case 'a':
+		PrintRooms(filteredRooms);
+		break;
+	case 'b':
+		short floor;
+		cout << SELECTFREEROOMS_FLOOR_INP;
+		GET_INPUT(floor, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_FLOOR_INP);
+
+		filteredRooms = getRoomsOnFloor(floor, filteredRooms);
+		PrintRooms(filteredRooms);
+		break;
+	case 'c':
+		break;
+	case 'd':
+		break;
+	}
+	return false;
+}
+
+void PrintRooms(vector <struct Room> &data)
+{
 	cout << "+" << setw(62) << setfill('-') << "+" << endl;
 	cout << "| Mistnost | Patro | Kapacita sedadel | Cena za den rezervace |" << endl;
 	cout << left << setw(11) << setfill('-') << "+"
@@ -21,89 +47,68 @@ bool PrintFreeRooms(short param1, vector <struct Room> &rooms_data, vector <stru
 		<< left << setw(24) << setfill('-') << "+"
 		<< left << "+" << endl;
 
-	switch (filter)
+	for (unsigned int i = 0; i < data.size(); i++)
 	{
-	case Filter::PRICE:
-		for (unsigned int i = 0; i < rooms_data.size(); i++)
-		{
-			if (IsRoomFree(rooms_data[i].id, reservation_data) && rooms_data[i].reservation_price == param1)
-			{
-				cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
-					<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
-					<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
-					<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
-			}
-		}
-		break;
-	case Filter::SEATS:
-		for (unsigned int i = 0; i < rooms_data.size(); i++)
-		{
-			if (IsRoomFree(rooms_data[i].id, reservation_data) && rooms_data[i].seat_capacity == param1)
-			{
-				cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
-					<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
-					<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
-					<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
-			}
-		}
-		break;
-	default:
-		for (unsigned int i = 0; i < rooms_data.size(); i++)
-		{
-			if (IsRoomFree(rooms_data[i].id, reservation_data) && rooms_data[i].floor == param1)
-			{
-				cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
-					<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
-					<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
-					<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
-			}
-		}
-		break;
+		cout << left << "| " << setw(9) << setfill(' ') << data[i].room_number
+			<< left << "| " << setw(6) << setfill(' ') << data[i].floor
+			<< left << "| " << setw(17) << setfill(' ') << data[i].seat_capacity
+			<< left << "| " << setw(22) << setfill(' ') << data[i].reservation_price << "|" << endl;
 	}
 
 	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
-
-	return false; 
 }
 
-bool PrintFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
+vector<struct Room> getRoomsOnSeats(int seats, vector <struct Room> &data)
 {
-	cout << "+" << setw(62) << setfill('-') << "+" << endl;
-	cout << "| Mistnost | Patro | Kapacita sedadel | Cena za den rezervace |" << endl;
-	cout << left << setw(11) << setfill('-') << "+"
-		<< left << setw(8) << setfill('-') << "+"
-		<< left << setw(19) << setfill('-') << "+"
-		<< left << setw(24) << setfill('-') << "+"
-		<< left << "+" << endl;	
+	vector<struct Room> free_rooms;
 
+	for (unsigned int i = 0; i < data.size(); i++)
+	{
+		if (data[i].seat_capacity == seats)
+		{
+			free_rooms = data;
+		}
+	}
+	return free_rooms;
+}
+
+vector<struct Room> getRoomsOnPrice(int price, vector <struct Room> &data)
+{
+	vector<struct Room> free_rooms;
+	for (unsigned int i = 0; i < data.size(); i++)
+	{
+		if (data[i].reservation_price == price)
+		{
+			free_rooms = data;
+		}
+	}
+	return free_rooms;
+}
+
+vector<struct Room> getRoomsOnFloor(short floor, vector <struct Room> &data)
+{
+	vector<struct Room> free_rooms;
+	for (unsigned int i = 0; i < data.size(); i++)
+	{
+		if (data[i].floor == floor)
+		{
+			free_rooms = data;
+		}
+	}
+	return free_rooms;
+}
+
+vector<struct Room> getFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
+{
+	vector<struct Room> free_rooms;
 	for (unsigned int i = 0; i < rooms_data.size(); i++)
 	{
 		if (IsRoomFree(rooms_data[i].id, reservation_data))
 		{
-			cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
-				<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor				
-				<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
-				<< left << "| " << setw(22) << setfill(' ') << rooms_data[i].reservation_price << "|" << endl;
+			free_rooms.push_back(rooms_data.at(i));
 		}
 	}
-
-	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
-
-	/*switch (ShowOptions2())
-	{
-		case 'q':
-			break;
-		case 'a':
-			break;
-		case 'b':
-			break;
-		case 'c':
-			break;
-		case 'd':
-			break;
-	}
-	return false;*/
-	return false;
+	return free_rooms;
 }
 
 bool IsRoomFree(int room_id, short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
