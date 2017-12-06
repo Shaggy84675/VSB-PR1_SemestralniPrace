@@ -35,7 +35,7 @@ int main()
 
 	while (true)
 	{
-		switch (ShowOptions())
+		switch (ShowMainMenu())
 		{
 		case 0:
 			return 0;
@@ -57,7 +57,7 @@ int main()
 			cout << endl;
 			break;
 		case 3:
-			//FindFreeRooms();
+			selectFreeRooms(rooms, reservations);
 			break;
 		case 4:
 			PrintRoomsTable(rooms);
@@ -90,7 +90,7 @@ int main()
 			//CheckReservationsIntegrity(reservations_path, reservations);
 			//cout << CheckIDDuplicity(100, rooms);
 			//cout << FindRoomIndex(304, rooms);
-			PrintFreeRooms(999, rooms, reservations, Filter::PRICE);
+			//PrintFreeRooms(rooms, reservations, Filter::PRICE);
 			cout << endl;
 			break;
 		}

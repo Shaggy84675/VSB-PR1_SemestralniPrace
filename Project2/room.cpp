@@ -12,6 +12,9 @@
 
 bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
 {
+	Reservation reservation;
+	int input;
+	string fulldate;
 	auto filteredRooms = getFreeRooms(rooms_data, reservation_data);
 	
 	switch (ShowSubMenu())
@@ -19,19 +22,48 @@ bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservatio
 	case 'q':
 		break;
 	case 'a':
+		while (true)
+		{
+			cout << CREATERESERVATION_INP_DATE << endl;
+
+			cin.ignore();
+			getline(cin, fulldate);
+
+			sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
+
+			if ((reservation.day > 31 || reservation.day < 0) || (reservation.month > 12 || reservation.month < 0) || (reservation.year < 2000 || reservation.year > 9999))
+			{
+				cout << INP_DATE_INVALID << endl;
+				continue;
+			}
+			break;
+		}
+
+		filteredRooms = getRoomsOnDate(reservation.day, reservation.month, reservation.year, rooms_data, reservation_data);
 		PrintRooms(filteredRooms);
 		break;
 	case 'b':
-		short floor;
-		cout << SELECTFREEROOMS_FLOOR_INP;
-		GET_INPUT(floor, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_FLOOR_INP);
+		cout << SELECTFREEROOMS_PRICE_LOW_INP;
+		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_PRICE_LOW_INP);
 
-		filteredRooms = getRoomsOnFloor(floor, filteredRooms);
+		filteredRooms = getRoomsOnPrice(input, filteredRooms);
 		PrintRooms(filteredRooms);
 		break;
 	case 'c':
+		cout << SELECTFREEROOMS_SEATS_INP;
+		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_SEATS_INP);
+
+		filteredRooms = getRoomsOnSeats(input, filteredRooms);
+		PrintRooms(filteredRooms);
 		break;
 	case 'd':
+		cout << SELECTFREEROOMS_FLOOR_INP;
+		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_FLOOR_INP);
+
+		filteredRooms = getRoomsOnFloor(input, filteredRooms);
+		break;
+	case 'e':
+		PrintRooms(filteredRooms);
 		break;
 	}
 	return false;
@@ -58,13 +90,27 @@ void PrintRooms(vector <struct Room> &data)
 	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
 }
 
+vector <struct Room> getRoomsOnDate(short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
+{
+	vector<struct Room> free_rooms;
+
+	for (unsigned int i = 0; i < rooms_data.size(); i++)
+	{
+		if (IsRoomFree(rooms_data[i].id, day, month, year, rooms_data, reservation_data))
+		{
+			free_rooms.push_back(rooms_data.at(i));
+		}
+	}
+	return free_rooms;
+}
+
 vector<struct Room> getRoomsOnSeats(int seats, vector <struct Room> &data)
 {
 	vector<struct Room> free_rooms;
 
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
-		if (data[i].seat_capacity == seats)
+		if (data[i].seat_capacity >= seats)
 		{
 			free_rooms = data;
 		}
@@ -77,7 +123,7 @@ vector<struct Room> getRoomsOnPrice(int price, vector <struct Room> &data)
 	vector<struct Room> free_rooms;
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
-		if (data[i].reservation_price == price)
+		if (data[i].reservation_price <= price)
 		{
 			free_rooms = data;
 		}

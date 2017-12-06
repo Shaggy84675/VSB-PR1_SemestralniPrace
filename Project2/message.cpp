@@ -6,18 +6,19 @@
 
 using namespace std;
 
-void PrintOptions2()
+void PrintSubMenu()
 {
 	cout << "a - Vyhledat volne mistnosti na urcity datum" << endl
 		<< "b - Vyhledat volne mistnosti do urcite ceny" << endl
 		<< "c - Vyhledat volne mistnosti do urcite kapacity osob" << endl
 		<< "d - Vyhledat volne mistnosti na konkretnim patre" << endl
+		<< "e - Vyhledat vsechny volne mistnosti" << endl
 		<< "q - Vratit se do hlavni nabidky" << endl
 		<< setw(74) << setfill('-') << "" << endl
 		<< "Vyberte moznost ze seznamu, kterou chcete provest: ";
 }
 
-void PrintOptions()
+void PrintMainMenu()
 {
 	cout << "1 - Rezervovat mistnost" << endl
 		<< "2 - Zrusit rezervaci" << endl

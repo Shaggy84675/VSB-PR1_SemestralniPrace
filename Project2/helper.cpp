@@ -65,10 +65,10 @@ bool YesNoCheck()
 	return false;
 }
 
-int ShowOptions()
+int ShowMainMenu()
 {
 	int option;
-	PrintOptions();
+	PrintMainMenu();
 
 	while (!(cin >> option) || (option > NUMBER_OF_OPTIONS || option < 0)) {
 		cin.clear();
@@ -79,17 +79,17 @@ int ShowOptions()
 		}
 
 		cout << endl << INP_ERR << endl;
-		PrintOptions();
+		PrintMainMenu();
 	}
 	return option;
 }
 
-char ShowOptions2()
+char ShowSubMenu()
 {
 	char option;
-	PrintOptions2();
+	PrintSubMenu();
 
-	while (!(cin >> option) || (option > LAST_OPTION || option < 'a')) {
+	while (!(cin >> option) || (option > LAST_OPTION || option < FIRST_OPTION)) {
 		cin.clear();
 
 		while (cin.get() != '\n')
@@ -98,8 +98,9 @@ char ShowOptions2()
 		}
 
 		cout << endl << INP_ERR << endl;
-		PrintOptions2();
+		PrintSubMenu();
 	}
+
 	return option;
 }
 

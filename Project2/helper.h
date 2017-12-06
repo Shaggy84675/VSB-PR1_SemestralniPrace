@@ -7,7 +7,9 @@
 #include <string>
 
 #define NUMBER_OF_OPTIONS 8
-#define LAST_OPTION 'd'
+#define FIRST_OPTION 'a'
+#define LAST_OPTION 'e'
+#define QUIT_OPTION 'q'
 #define CURRENCY "CZK"
 
 #define GET_INPUT(var, msg1, msg2) \
@@ -23,6 +25,6 @@ using namespace std;
 
 string GetMonthName(int month);
 
-int ShowOptions();
+int ShowMainMenu();
 bool YesNoCheck();
-char ShowOptions2();
+char ShowSubMenu();

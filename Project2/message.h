@@ -60,8 +60,13 @@
 
 #define CHECKRESERVATIONINTEGRITY_DETAIL(row, column)	"Radek v souboru seznam_rezervaci.csv: " << row << " polozka: " << column
 
+#define SELECTFREEROOMS_FLOOR_INP						"Zadejte patro na kterem si prejete volne mistnosti vyhledat: "
+#define SELECTFREEROOMS_DATE_INP						"Zadejte datum ve formatu (DD.MM.YYYY) nebo (D.M.YYYY) na ktere si prejete volne mistnosti vyhledat: "
+#define SELECTFREEROOMS_PRICE_LOW_INP					"Zadejte castku do ktere si prejete volne mistnosti vyhledat: "
+#define SELECTFREEROOMS_SEATS_INP						"Zadejte pocet sedadel nad ktere si prejete volne mistnosti vyhledat: "
+
 
 
 void WelcomeMessage();
-void PrintOptions();
-void PrintOptions2();
+void PrintMainMenu();
+void PrintSubMenu();
