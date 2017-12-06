@@ -15,8 +15,6 @@ struct Room {
 	int reservation_price;
 };
 
-enum class Filter { ALL, FLOOR, PRICE, SEATS };
-
 bool FillRoomsStructure(string &path, vector <struct Room> &data);
 void PrintRoomsTable(vector <struct Room> &data);
 bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data);
@@ -36,3 +34,4 @@ vector<struct Room> getRoomsOnPrice(int price, vector <struct Room> &data);
 vector<struct Room> getRoomsOnSeats(int seats, vector <struct Room> &data);
 void PrintRooms(vector <struct Room> &data);
 bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data);
+vector <struct Room> getRoomsOnDate(short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data);
