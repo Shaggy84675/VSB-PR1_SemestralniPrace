@@ -1,7 +1,4 @@
 #include <iostream>
-#include <thread>
-#include <chrono>
-#include <cctype>
 
 #include "message.h"
 #include "room.h"
@@ -19,21 +16,6 @@ int main()
 	//string reservations_path = "seznam_rezervaci.csv";
 
 	WelcomeMessage();
-
-
-	//getline(cin, path);
-
-	//replace(path.begin(), path.end(), '\\', '/');
-	//path.erase(remove(path.begin(), path.end(), '"'), path.end());
-
-	/*for (int index = 0; index < s.length(); ++index)
-		{
-			cout << s[index];
-			this_thread::sleep_for(chrono::milliseconds(50));
-		}
-		cout << endl;*/
-
-		//cout << path << endl;
 
 	if (!FillRoomsStructure(rooms_path, rooms))
 	{
@@ -75,7 +57,7 @@ int main()
 			cout << endl;
 			break;
 		case 3:
-			FindFreeRooms();
+			//FindFreeRooms();
 			break;
 		case 4:
 			PrintRoomsTable(rooms);
@@ -108,6 +90,8 @@ int main()
 			//CheckReservationsIntegrity(reservations_path, reservations);
 			//cout << CheckIDDuplicity(100, rooms);
 			//cout << FindRoomIndex(304, rooms);
+			PrintFreeRooms(999, rooms, reservations, Filter::PRICE);
+			cout << endl;
 			break;
 		}
 	}
