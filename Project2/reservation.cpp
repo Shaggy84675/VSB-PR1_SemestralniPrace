@@ -1,3 +1,9 @@
+/**
+* @author Patrik Leifert
+* @file reservation.cpp
+* 
+*/
+
 #include "reservation.h"
 #include "message.h"
 #include "room.h"
@@ -379,6 +385,13 @@ void PrintReservationsTable(vector <struct Reservation> &data)
 	}
 	cout << "+" << setw(27) << setfill('-') << right << "+" << endl;
 }
+
+/**
+* @brief Funkce pro naplneni struktury Reservation s daty rezervaci
+* @param path	Cesta k souboru, ktery obsahuje seznam rezervaci
+* @param data	Vektor s rezervacemi, ktery se ma naplnit
+* @return Funkce navraci hodnotu 
+*/
 
 bool FillReservationsStructure(string &path, vector <struct Reservation> &data)
 {
