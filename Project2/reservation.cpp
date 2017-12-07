@@ -1,8 +1,7 @@
-/**
-* @author Patrik Leifert
-* @file reservation.cpp
-* 
-*/
+///
+/// @author Patrik Leifert
+/// @file reservation.cpp
+///
 
 #include "reservation.h"
 #include "message.h"
@@ -57,7 +56,9 @@ bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <s
 
 		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
 
-		if ((reservation.day > 31 || reservation.day < 0) || (reservation.month > 12 || reservation.month < 0) || (reservation.year < 2000 || reservation.year > 9999))
+		if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
+			(reservation.month > RESERVATION_MONTH_MAX_LENGTH || reservation.month < RESERVATION_MONTH_MIN_LENGTH) ||
+			(reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH))
 		{
 			cout << INP_DATE_INVALID << endl;
 			continue;
@@ -129,7 +130,9 @@ bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <str
 
 		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
 
-		if ((reservation.day > 31 || reservation.day < 0) || (reservation.month > 12 || reservation.month < 0) || (reservation.year < 2000 || reservation.year > 9999))
+		if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
+			(reservation.month > RESERVATION_MONTH_MAX_LENGTH || reservation.month < RESERVATION_MONTH_MIN_LENGTH) ||
+			(reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH))
 		{
 			cout << INP_DATE_INVALID << endl;
 			continue;
@@ -366,6 +369,10 @@ bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data)
 	return true;
 }
 
+///
+/// @brief Funkce pro vypsani obsahu struktury Reservation z vektoru, ktery byl naplnen z CSV souboru
+///
+
 void PrintReservationsTable(vector <struct Reservation> &data)
 {
 	cout << "+" << setw(27) << setfill('-') << "+" << endl;
@@ -386,12 +393,13 @@ void PrintReservationsTable(vector <struct Reservation> &data)
 	cout << "+" << setw(27) << setfill('-') << right << "+" << endl;
 }
 
-/**
-* @brief Funkce pro naplneni struktury Reservation s daty rezervaci
-* @param path	Cesta k souboru, ktery obsahuje seznam rezervaci
-* @param data	Vektor s rezervacemi, ktery se ma naplnit
-* @return Funkce navraci hodnotu 
-*/
+///
+/// @brief	Funkce pro naplneni struktury Reservation z CSV souboru
+/// @param	path	Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	data	Vektor s rezervacemi, ktery se ma naplnit
+/// @retval	true	Funkce vraci hodnotu true, jestlize struktura byla uspesne naplnena
+/// @retval false	Funkce vraci hodnotu false, jestlize nastal problem pri nahravani dat ze souboru
+///
 
 bool FillReservationsStructure(string &path, vector <struct Reservation> &data)
 {
@@ -416,22 +424,22 @@ bool FillReservationsStructure(string &path, vector <struct Reservation> &data)
 
 		getline(line, s, ';');
 		reservation.id = atoi(s.c_str());
-		if (reservation.id < 1 || reservation.id > 999999)
+		if (reservation.id < RESERVATION_ID_MIN_LENGTH || reservation.id > RESERVATION_ID_MAX_LENGTH)
 			return false;
 
 		getline(line, s, '.');
 		reservation.day = atoi(s.c_str());
-		if (reservation.day < 0 || reservation.day > 31 || s == "")
+		if (reservation.day < RESERVATION_DAY_MIN_LENGTH || reservation.day > RESERVATION_DAY_MAX_LENGTH)
 			return false;
 
 		getline(line, s, '.');
 		reservation.month = atoi(s.c_str());
-		if (reservation.month < 0 || reservation.month > 12 || s == "")
+		if (reservation.month < RESERVATION_MONTH_MIN_LENGTH || reservation.month > RESERVATION_MONTH_MAX_LENGTH)
 			return false;
 
 		getline(line, s, '.');
 		reservation.year = atoi(s.c_str());
-		if (reservation.year < 0 || reservation.year > 9999 || s == "")
+		if (reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH)
 			return false;
 
 		data.push_back(reservation);
