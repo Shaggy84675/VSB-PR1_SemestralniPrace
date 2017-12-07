@@ -15,6 +15,27 @@
 #include <cstdio>
 
 
+bool AppendRecordToFile(string &path, Reservation reservation)
+{
+	ofstream out;
+	out.open(path, ios::app);
+
+	if (!out.is_open())
+	{
+		cout << ERROR_FILE_NOT_FOUND(path);
+		return false;
+	}
+
+	out << reservation.id << ";"
+		<< setw(2) << setfill('0') << reservation.day << "."
+		<< setw(2) << setfill('0') << reservation.month << "."
+		<< setw(4) << setfill('0') << reservation.year << endl;
+
+	out.close();
+
+	return true;
+}
+
 bool IsReservationValid(Reservation reservation)
 {
 	if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
@@ -143,27 +164,16 @@ bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <str
 
 	if (YesNoCheck())
 	{
-		ofstream out;
-		out.open(path, ios::app);
-
-		if (!out.is_open())
-		{
-			return false;
-		}
-
 		if (!CheckReservationsIntegrity(path, reservations_data))
 		{
 			return false;
 		}
-
 		reservations_data.push_back(reservation);
-
-		out << reservation.id << ";"
-			<< setw(2) << setfill('0') << reservation.day << "."
-			<< setw(2) << setfill('0') << reservation.month << "."
-			<< setw(4) << setfill('0') << reservation.year << endl;
-
-		out.close();
+		// Pokud zbyde èas, pøidat do zvláštní funkce
+		if (!AppendRecordToFile(path, reservation))
+		{
+			return false;
+		}
 	}
 	else
 	{

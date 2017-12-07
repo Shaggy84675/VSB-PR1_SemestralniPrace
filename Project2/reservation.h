@@ -33,3 +33,4 @@ bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <str
 int FindReservationIndex(int id, short day, short month, short year, vector <struct Reservation> &data);
 bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
 bool IsReservationValid(Reservation reservation);
+bool AppendRecordToFile(string &path, Reservation reservation);
