@@ -38,7 +38,11 @@ bool AppendRecordToFile(string &path, Reservation reservation)
 
 bool IsReservationValid(Reservation reservation)
 {
-	if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
+	if (reservation.id < RESERVATION_ID_MIN_LENGTH || reservation.id > RESERVATION_ID_MAX_LENGTH)
+	{
+		return false;
+	}
+	else if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
 		(reservation.month > RESERVATION_MONTH_MAX_LENGTH || reservation.month < RESERVATION_MONTH_MIN_LENGTH) ||
 		(reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH))
 	{
@@ -281,6 +285,27 @@ bool SaveReservationsStructure(string &path, vector <struct Reservation> &reserv
 	return true;
 }
 
+Reservation ParserReservation(string row)
+{
+	string s;
+	Reservation reservation;
+	istringstream line(row);
+
+	getline(line, s, ';');
+	reservation.id = atoi(s.c_str());	
+
+	getline(line, s, '.');
+	reservation.day = atoi(s.c_str());	
+
+	getline(line, s, '.');
+	reservation.month = atoi(s.c_str());	
+
+	getline(line, s, '.');
+	reservation.year = atoi(s.c_str());
+
+	return reservation;
+}
+
 bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data)
 {
 	ifstream file;
@@ -406,13 +431,13 @@ void PrintReservations(vector <struct Reservation> &reservations)
 
 ///
 /// @brief	Funkce pro naplneni struktury Reservation z CSV souboru
-/// @param	path	Cesta k souboru, ktery obsahuje seznam rezervaci
-/// @param	data	Vektor s rezervacemi, ktery se ma naplnit
-/// @retval	true	Funkce vraci hodnotu true, jestlize struktura byla uspesne naplnena
-/// @retval	false	Funkce vraci hodnotu false, jestlize nastal problem pri nahravani dat ze souboru
+/// @param	path			Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	reservations	Vektor s rezervacemi, ktery se ma naplnit
+/// @retval	true			Funkce vraci hodnotu true, jestlize struktura byla uspesne naplnena
+/// @retval	false			Funkce vraci hodnotu false, jestlize nastal problem pri nahravani dat ze souboru
 ///
 
-bool FillReservationsStructure(string &path, vector <struct Reservation> &data)
+bool FillReservationsStructure(string &path, vector <struct Reservation> &reservations)
 {
 	ifstream reservations_file;
 	Reservation reservation;
@@ -429,31 +454,15 @@ bool FillReservationsStructure(string &path, vector <struct Reservation> &data)
 	getline(reservations_file, s);
 	while (getline(reservations_file, s))
 	{
-		istringstream line(s);
 		if (s.find('"') != string::npos)
 			return false;
+		reservation = ParserReservation(s);
 
-		getline(line, s, ';');
-		reservation.id = atoi(s.c_str());
-		if (reservation.id < RESERVATION_ID_MIN_LENGTH || reservation.id > RESERVATION_ID_MAX_LENGTH)
+		if (!IsReservationValid(reservation))
+		{
 			return false;
-
-		getline(line, s, '.');
-		reservation.day = atoi(s.c_str());
-		if (reservation.day < RESERVATION_DAY_MIN_LENGTH || reservation.day > RESERVATION_DAY_MAX_LENGTH)
-			return false;
-
-		getline(line, s, '.');
-		reservation.month = atoi(s.c_str());
-		if (reservation.month < RESERVATION_MONTH_MIN_LENGTH || reservation.month > RESERVATION_MONTH_MAX_LENGTH)
-			return false;
-
-		getline(line, s, '.');
-		reservation.year = atoi(s.c_str());
-		if (reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH)
-			return false;
-
-		data.push_back(reservation);
+		}
+		reservations.push_back(reservation);
 	}
 	reservations_file.close();
 	return true;
