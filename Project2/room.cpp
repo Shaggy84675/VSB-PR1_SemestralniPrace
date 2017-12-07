@@ -36,35 +36,35 @@ bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservatio
 				cout << INP_DATE_INVALID << endl;
 				continue;
 			}
-			break;
+			return true;
 		}
 
 		filteredRooms = getRoomsOnDate(reservation.day, reservation.month, reservation.year, rooms_data, reservation_data);
 		PrintRooms(filteredRooms);
-		break;
+		return true;
 	case 'b':
 		cout << SELECTFREEROOMS_PRICE_LOW_INP;
 		GET_INPUT(input, ADDROOM_INP_PRICE_ERR(INT_MAX), SELECTFREEROOMS_PRICE_LOW_INP);
 
 		filteredRooms = getRoomsOnPrice(input, filteredRooms);
 		PrintRooms(filteredRooms);
-		break;
+		return true;
 	case 'c':
 		cout << SELECTFREEROOMS_SEATS_INP;
 		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(INT_MAX), SELECTFREEROOMS_SEATS_INP);
 
 		filteredRooms = getRoomsOnSeats(input, filteredRooms);
 		PrintRooms(filteredRooms);
-		break;
+		return true;
 	case 'd':
 		cout << SELECTFREEROOMS_FLOOR_INP;
 		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_FLOOR_INP);
 
 		filteredRooms = getRoomsOnFloor(input, filteredRooms);
-		break;
+		return true;
 	case 'e':
 		PrintRooms(filteredRooms);
-		break;
+		return true;
 	}
 	return false;
 }
