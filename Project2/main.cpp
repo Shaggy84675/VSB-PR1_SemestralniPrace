@@ -64,7 +64,7 @@ int main()
 			cout << endl;
 			break;
 		case 5:
-			PrintReservationsTable(reservations);
+			PrintReservations(reservations);
 			cout << endl;
 			break;
 		case 6:

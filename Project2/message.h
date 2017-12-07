@@ -65,7 +65,8 @@
 #define SELECTFREEROOMS_PRICE_LOW_INP					"Zadejte castku do ktere si prejete volne mistnosti vyhledat: "
 #define SELECTFREEROOMS_SEATS_INP						"Zadejte pocet sedadel nad ktere si prejete volne mistnosti vyhledat: "
 
-
+#define	TABLECELL_ID									"ID"
+#define TABLECELL_RESERVEDATE							"Datum rezervace"
 
 void WelcomeMessage();
 void PrintMainMenu();

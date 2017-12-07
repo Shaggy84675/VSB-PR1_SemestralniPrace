@@ -370,24 +370,24 @@ bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data)
 }
 
 ///
-/// @brief Funkce pro vypsani obsahu struktury Reservation z vektoru, ktery byl naplnen z CSV souboru
+/// @brief Funkce pro vypsani obsahu struktury Reservation z vektoru, ktery byl naplnen CSV souborem
 ///
 
-void PrintReservationsTable(vector <struct Reservation> &data)
+void PrintReservations(vector <struct Reservation> &reservations)
 {
 	cout << "+" << setw(27) << setfill('-') << "+" << endl;
-	cout << "|   ID   | Datum rezervace |" << endl;
+	cout << "|   " << TABLECELL_ID << "   | " << TABLECELL_RESERVEDATE << " |" << endl;
 	cout << left << setw(9) << setfill('-') << "+"
 		<< left << setw(18) << setfill('-') << "+"
 		<< left << "+" << endl;
 
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < reservations.size(); i++)
 	{
 		stringstream date;
 
-		date << data[i].day << "." << data[i].month << "." << data[i].year;
+		date << reservations[i].day << "." << reservations[i].month << "." << reservations[i].year;
 
-		cout << left << "| " << setw(7) << setfill(' ') << data[i].id;			
+		cout << left << "| " << setw(7) << setfill(' ') << reservations[i].id;
 		cout << left << "| " << setw(16) << setfill(' ') << date.str() << "|" << endl;
 	}
 	cout << "+" << setw(27) << setfill('-') << right << "+" << endl;
@@ -398,7 +398,7 @@ void PrintReservationsTable(vector <struct Reservation> &data)
 /// @param	path	Cesta k souboru, ktery obsahuje seznam rezervaci
 /// @param	data	Vektor s rezervacemi, ktery se ma naplnit
 /// @retval	true	Funkce vraci hodnotu true, jestlize struktura byla uspesne naplnena
-/// @retval false	Funkce vraci hodnotu false, jestlize nastal problem pri nahravani dat ze souboru
+/// @retval	false	Funkce vraci hodnotu false, jestlize nastal problem pri nahravani dat ze souboru
 ///
 
 bool FillReservationsStructure(string &path, vector <struct Reservation> &data)

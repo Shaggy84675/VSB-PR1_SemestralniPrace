@@ -24,7 +24,7 @@ struct Reservation {
 #define RESERVATION_YEAR_MAX_LENGTH		9999
 
 
-void PrintReservationsTable(vector <struct Reservation> &data);
+void PrintReservations(vector <struct Reservation> &data);
 void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
 bool FillReservationsStructure(string &path, vector <struct Reservation> &data);
 bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data);
