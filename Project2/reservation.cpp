@@ -15,6 +15,18 @@
 #include <cstdio>
 
 
+bool IsReservationValid(Reservation reservation)
+{
+	if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
+		(reservation.month > RESERVATION_MONTH_MAX_LENGTH || reservation.month < RESERVATION_MONTH_MIN_LENGTH) ||
+		(reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH))
+	{
+		cout << INP_DATE_INVALID << endl;
+		return false;
+	}
+	return true;
+}
+
 int FindReservationIndex(int id, short day, short month, short year, vector <struct Reservation> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
@@ -47,24 +59,13 @@ bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <s
 		return false;
 	}
 
-	while (true)
+	do
 	{
-		cout << CANCELRESERVATION_INP_DATE << endl;
-
 		cin.ignore();
 		getline(cin, fulldate);
 
 		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
-
-		if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
-			(reservation.month > RESERVATION_MONTH_MAX_LENGTH || reservation.month < RESERVATION_MONTH_MIN_LENGTH) ||
-			(reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH))
-		{
-			cout << INP_DATE_INVALID << endl;
-			continue;
-		}
-		break;
-	}
+	} while (!IsReservationValid(reservation));
 
 	if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
 	{
@@ -121,24 +122,16 @@ bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <str
 		return false;
 	}
 
-	while (true)
-	{
-		cout << CREATERESERVATION_INP_DATE << endl;
+	cout << CREATERESERVATION_INP_DATE << endl;
 
+	do
+	{
 		cin.ignore();
 		getline(cin, fulldate);
 
 		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
-
-		if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
-			(reservation.month > RESERVATION_MONTH_MAX_LENGTH || reservation.month < RESERVATION_MONTH_MIN_LENGTH) ||
-			(reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH))
-		{
-			cout << INP_DATE_INVALID << endl;
-			continue;
-		}
-		break;
-	}
+	} while (!IsReservationValid(reservation));
+	
 
 	if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
 	{
