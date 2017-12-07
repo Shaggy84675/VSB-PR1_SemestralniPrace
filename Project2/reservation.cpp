@@ -239,7 +239,15 @@ void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Res
 	cout << "+" << setw(76) << setfill('-') << right << "+" << endl;
 }
 
-bool SaveReservationsStructure(string &path, vector <struct Reservation> &data)
+///
+/// @brief Funkce, ktera ulozi obsah vektoru do CSV souboru se seznamem rezervaci
+/// @param	path	Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	data	Vektor s ulozenymi rezervacemi
+/// @retval true	Funkce vraci hodnotu true, jestlize ulozeni souboru probehlo uspesne
+/// @retval false	Funkce vraci hodnotu false, jestlize ulozeni souboru skoncilo chybou
+///
+
+bool SaveReservationsStructure(string &path, vector <struct Reservation> &reservations)
 {
 	fstream file;
 	string s;
@@ -257,12 +265,12 @@ bool SaveReservationsStructure(string &path, vector <struct Reservation> &data)
 	file.open(path, ios::out);
 	file << s << endl;
 
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < reservations.size(); i++)
 	{
-		file << data[i].id << ";"
-			<< setw(2) << setfill('0') << data[i].day << "."
-			<< setw(2) << setfill('0') << data[i].month << "."
-			<< setw(4) << setfill('0') << data[i].year << endl;
+		file << reservations[i].id << ";"
+			<< setw(2) << setfill('0') << reservations[i].day << "."
+			<< setw(2) << setfill('0') << reservations[i].month << "."
+			<< setw(4) << setfill('0') << reservations[i].year << endl;
 	}
 
 	file.close();
