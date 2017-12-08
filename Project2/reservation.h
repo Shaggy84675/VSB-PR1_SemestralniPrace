@@ -24,13 +24,15 @@ struct Reservation {
 #define RESERVATION_YEAR_MAX_LENGTH		9999
 
 
-void PrintReservations(vector <struct Reservation> &data);
-void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
-bool FillReservationsStructure(string &path, vector <struct Reservation> &data);
-bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data);
-bool SaveReservationsStructure(string &path, vector <struct Reservation> &data);
-bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
-int FindReservationIndex(int id, short day, short month, short year, vector <struct Reservation> &data);
-bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data);
+void PrintReservations(vector <Reservation> &data);
+void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &reservations_data);
+bool FillReservationsStructure(string &path, vector <Reservation> &data);
+bool CheckReservationsIntegrity(string &path, vector <Reservation> &data);
+bool SaveReservationsStructure(string &path, vector <Reservation> &data);
+bool MakeReservation(string &path, vector <Room> &rooms_data, vector <Reservation> &reservations_data);
+int FindReservationIndex(int id, short day, short month, short year, vector <Reservation> &data);
+bool CancelReservation(string &path, vector <Room> &rooms_data, vector <Reservation> &reservations_data);
 bool IsReservationValid(Reservation reservation);
-bool AppendRecordToFile(string &path, Reservation reservation);
+bool AppendRecordToFile(string &path, Reservation &reservation);
+Reservation ParserReservation(string row);
+Reservation GetReservationDate(Reservation &reservation);

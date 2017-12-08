@@ -15,7 +15,22 @@
 #include <cstdio>
 
 
-bool AppendRecordToFile(string &path, Reservation reservation)
+Reservation GetReservationDate(Reservation &reservation)
+{
+	string fulldate;
+
+	do
+	{
+		cin.ignore();
+		getline(cin, fulldate);
+
+		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
+	} while (!IsReservationValid(reservation));
+
+	return reservation;
+}
+
+bool AppendRecordToFile(string &path, Reservation &reservation)
 {
 	ofstream out;
 	out.open(path, ios::app);
@@ -52,7 +67,7 @@ bool IsReservationValid(Reservation reservation)
 	return true;
 }
 
-int FindReservationIndex(int id, short day, short month, short year, vector <struct Reservation> &data)
+int FindReservationIndex(int id, short day, short month, short year, vector <Reservation> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
@@ -67,11 +82,10 @@ int FindReservationIndex(int id, short day, short month, short year, vector <str
 	return -1;
 }
 
-bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+bool CancelReservation(string &path, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
 {
 	Room room;
 	Reservation reservation;
-	string fulldate;
 
 	cout << CANCELRESERVATION_INP_ROOMNUM;
 	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), CANCELRESERVATION_INP_ROOMNUM);
@@ -84,13 +98,7 @@ bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <s
 		return false;
 	}
 
-	do
-	{
-		cin.ignore();
-		getline(cin, fulldate);
-
-		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
-	} while (!IsReservationValid(reservation));
+	reservation = GetReservationDate(reservation);
 
 	if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
 	{
@@ -129,7 +137,7 @@ bool CancelReservation(string &path, vector <struct Room> &rooms_data, vector <s
 	return true;
 }
 
-bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+bool MakeReservation(string &path, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
 {
 	Room room;
 	Reservation reservation;
@@ -149,14 +157,7 @@ bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <str
 
 	cout << CREATERESERVATION_INP_DATE << endl;
 
-	do
-	{
-		cin.ignore();
-		getline(cin, fulldate);
-
-		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
-	} while (!IsReservationValid(reservation));
-	
+	reservation = GetReservationDate(reservation);	
 
 	if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
 	{
@@ -187,7 +188,7 @@ bool MakeReservation(string &path, vector <struct Room> &rooms_data, vector <str
 	return true;
 }
 
-void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &reservations_data)
 {
 	unsigned int records = 0;
 
@@ -254,7 +255,7 @@ void PrintReservationsTable(vector <struct Room> &rooms_data, vector <struct Res
 /// @retval false	Funkce vraci hodnotu false, jestlize ulozeni souboru skoncilo chybou
 ///
 
-bool SaveReservationsStructure(string &path, vector <struct Reservation> &reservations)
+bool SaveReservationsStructure(string &path, vector <Reservation> &reservations)
 {
 	fstream file;
 	string s;
@@ -306,7 +307,7 @@ Reservation ParserReservation(string row)
 	return reservation;
 }
 
-bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data)
+bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 {
 	ifstream file;
 	bool passed = true;
@@ -409,7 +410,7 @@ bool CheckReservationsIntegrity(string &path, vector <struct Reservation> &data)
 /// @brief Funkce pro vypsani obsahu struktury Reservation z vektoru, ktery byl naplnen CSV souborem
 ///
 
-void PrintReservations(vector <struct Reservation> &reservations)
+void PrintReservations(vector <Reservation> &reservations)
 {
 	cout << "+" << setw(27) << setfill('-') << "+" << endl;
 	cout << "|   " << TABLECELL_ID << "   | " << TABLECELL_RESERVEDATE << " |" << endl;
@@ -437,7 +438,7 @@ void PrintReservations(vector <struct Reservation> &reservations)
 /// @retval	false			Funkce vraci hodnotu false, jestlize nastal problem pri nahravani dat ze souboru
 ///
 
-bool FillReservationsStructure(string &path, vector <struct Reservation> &reservations)
+bool FillReservationsStructure(string &path, vector <Reservation> &reservations)
 {
 	ifstream reservations_file;
 	Reservation reservation;
