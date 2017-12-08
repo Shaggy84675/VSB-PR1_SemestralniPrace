@@ -17,6 +17,35 @@
 #include <cstdio>
 
 
+bool ReservationComparator(int position, Reservation reservation_old, Reservation reservation_new)
+{
+	if (reservation_old.id != reservation_new.id)
+	{
+		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "id") << endl;
+		return false;
+	}
+
+	if (reservation_old.day != reservation_new.day)
+	{
+		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum") << endl;
+		return false;
+	}
+
+	if (reservation_old.month != reservation_new.month)
+	{
+		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum") << endl;
+		return false;
+	}
+
+	if (reservation_old.year != reservation_new.year)
+	{
+		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum") << endl;
+		return false;
+	}
+
+	return true;
+}
+
 void GetTableRoomSeparator(const int size)
 {
 	cout << "+" << setw(size) << setfill('-') << "+" << endl;
@@ -383,6 +412,7 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 	ifstream file;
 	bool passed = true;
 	string s;
+	Reservation reservation;
 	unsigned int file_records = 0;
 
 	file.open(path);
@@ -412,43 +442,15 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 
 		while (getline(file, s))
 		{
-			istringstream line(s);
+			reservation = ParserReservation(s);
 
-			getline(line, s, ';');
-			if (atoi(s.c_str()) != data[position].id)
+			if (!ReservationComparator(position, reservation, data[position]))
 			{
 				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "id");
-				cout << endl;
-				passed = false;
-			}
-
-			getline(line, s, '.');
-			if (atoi(s.c_str()) != data[position].day)
-			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum");
-				cout << endl;
+				
 				passed = false;
 			}
 			
-			getline(line, s, '.');
-			if (atoi(s.c_str()) != data[position].month)
-			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum");
-				cout << endl;
-				passed = false;
-			}
-
-			getline(line, s, '\n');
-			if (atoi(s.c_str()) != data[position].year)
-			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum");
-				cout << endl;
-				passed = false;
-			}
 			position++;
 		}
 		file.close();

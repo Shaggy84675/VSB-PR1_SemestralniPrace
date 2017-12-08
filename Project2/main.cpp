@@ -87,7 +87,7 @@ int main()
 		} break;
 		case 8:
 			//CheckRoomsIntegrity(rooms_path, rooms);
-			//CheckReservationsIntegrity(reservations_path, reservations);
+			CheckReservationsIntegrity(reservations_path, reservations);
 			//cout << CheckIDDuplicity(100, rooms);
 			//cout << FindRoomIndex(304, rooms);
 			//PrintFreeRooms(rooms, reservations, Filter::PRICE);
