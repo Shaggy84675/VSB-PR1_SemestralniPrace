@@ -8,7 +8,47 @@
 #include <iomanip>
 #include <sstream>
 
+bool IsRoomValid(Room room)
+{
+	if (room.id < ROOM_ID_MIN_LENGTH || room.id > ROOM_ID_MAX_LENGTH)
+		return false;
 
+	if (room.floor < ROOM_FLOOR_MIN_LENGTH || room.floor > ROOM_FLOOR_MAX_LENGTH)
+		return false;
+
+	if (room.room_number < ROOM_ROOMNUM_MIN_LENGTH || room.room_number > ROOM_ROOMNUM_MAX_LENGTH)
+		return false;
+
+	if (room.seat_capacity < ROOM_SEATS_MIN_LENGTH || room.seat_capacity > ROOM_SEATS_MAX_LENGTH)
+		return false;
+
+	if (room.reservation_price < ROOM_PRICE_MIN_LENGTH || room.reservation_price > ROOM_PRICE_MAX_LENGTH)
+		return false;
+}
+
+Room ParserRoom(string row)
+{
+	string s;
+	Room room;
+	istringstream line(row);
+
+	getline(line, s, ';');
+	room.id = atoi(s.c_str());	
+
+	getline(line, s, ';');
+	room.floor = atoi(s.c_str());	
+
+	getline(line, s, ';');
+	room.room_number = atoi(s.c_str());	
+
+	getline(line, s, ';');
+	room.seat_capacity = atoi(s.c_str());	
+
+	getline(line, s, ';');
+	room.reservation_price = atoi(s.c_str());
+
+	return room;	
+}
 
 bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
 {
@@ -217,16 +257,7 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Ro
 	PrintRoomsTable(rooms_data);
 
 	cout << REMOVEROOM_INPUT;
-
-	while (!(cin >> remove_what))
-	{
-		cin.clear();
-
-		while (cin.get() != '\n')
-		{
-			continue;
-		}
-	}
+	GET_INPUT(remove_what, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), REMOVEROOM_INPUT);
 
 	index = FindRoomIndex(remove_what, rooms_data);
 	room_id = FindRoomID(remove_what, rooms_data);
@@ -520,38 +551,18 @@ bool FillRoomsStructure(string &path, vector <struct Room> &data)
 	getline(rooms_file, s);
 	while (getline(rooms_file, s))
 	{
-		istringstream line(s);
-
 		if (s.find('"') != string::npos)
 			return false;
 
 		if (count(s.begin(), s.end(), ';') != 4)
 			return false;
 
-		getline(line, s, ';');
-		room.id = atoi(s.c_str());
-		if (room.id < 1 || room.id > 999999)
-			return false;
+		room = ParserRoom(s);
 
-		getline(line, s, ';');
-		room.floor = atoi(s.c_str());
-		if (room.floor < -999 || room.floor > 999 || s == "")
+		if (!IsRoomValid(room))
+		{
 			return false;
-
-		getline(line, s, ';');
-		room.room_number = atoi(s.c_str());
-		if (room.room_number < 0 || room.room_number > 99999999 || s == "")
-			return false;
-
-		getline(line, s, ';');
-		room.seat_capacity = atoi(s.c_str());
-		if (!room.seat_capacity || room.seat_capacity > 1000000)
-			return false;
-
-		getline(line, s, ';');
-		room.reservation_price = atoi(s.c_str());
-		if (room.reservation_price < 0 || room.reservation_price > INT_MAX - 1 || s == "")
-			return false;
+		}
 
 		if (RoomIdExists(room.id, data) || RoomExists(room.room_number, data))
 		{
