@@ -1,6 +1,8 @@
 ///
+/// @brief Soubor obsahuje funkce pro praci s rezervacemi
 /// @author Patrik Leifert
 /// @file reservation.cpp
+/// @date Prosinec 2017
 ///
 
 #include "reservation.h"
@@ -14,6 +16,12 @@
 #include <sstream>
 #include <cstdio>
 
+
+///
+/// @brief Funkce, ktera zjistuje datum rezervace na zaklade vstupu z konzole a nasledne ulozi do struktury Reservation
+/// @param	reservation	Struktura Reservation
+/// @return Funkce vraci strukturu Reservation s vyplnenymi hodnotami data rezervace z konzole
+///
 
 Reservation GetReservationDate(Reservation &reservation)
 {
@@ -30,7 +38,15 @@ Reservation GetReservationDate(Reservation &reservation)
 	return reservation;
 }
 
-bool AppendRecordToFile(string &path, Reservation &reservation)
+///
+/// @brief Funkce, ktera prida obsah struktury Reservation na konec souboru
+/// @param	path			Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	reservation		Struktura Reservation
+/// @retval	true			Funkce vraci hodnotu true, jestlize se podari obsah struktury na konec souboru pridat
+/// @retval false			Funkce vraci hodnotu false, jestlize pri ukladani obsahu struktury na konec souboru nastane chyba
+///
+
+bool AppendRecordToReservationFile(string &path, Reservation &reservation)
 {
 	ofstream out;
 	out.open(path, ios::app);
@@ -51,6 +67,13 @@ bool AppendRecordToFile(string &path, Reservation &reservation)
 	return true;
 }
 
+///
+/// @brief Funkce, ktera zjisti, jestli rezervace vyhovuje vstupnim parametrum
+/// @param	reservation		Struktura Reservation
+/// @retval true			Funkce vraci hodnotu true, jestlize rezervace vyhovuje vstupnim parametrum
+/// @retval false			Funkce vraci hodnotu false, jestlize rezervace obsahuje neplatne parametry
+///
+
 bool IsReservationValid(Reservation reservation)
 {
 	if (reservation.id < RESERVATION_ID_MIN_LENGTH || reservation.id > RESERVATION_ID_MAX_LENGTH)
@@ -67,6 +90,16 @@ bool IsReservationValid(Reservation reservation)
 	return true;
 }
 
+///
+/// @brief Funkce, ktera zjisti pozici rezervace ve vektoru Reservation na zaklade zadaneho id a data
+/// @param	id		ID mistnosti
+/// @param	day		Datum rezervace mistnosti
+/// @param	month	Mesic rezervace mistnosti
+/// @param	year	Rok rezervace mistnosti
+/// @param	data	Vektor s ulozenymi rezervacemi
+/// @return	Funkce vraci index pozice ve vektoru. Pokud pozici nenalezne, vrati cislo -1.
+///
+
 int FindReservationIndex(int id, short day, short month, short year, vector <Reservation> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
@@ -82,7 +115,7 @@ int FindReservationIndex(int id, short day, short month, short year, vector <Res
 	return -1;
 }
 
-bool CancelReservation(string &path, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
+bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> &reservations)
 {
 	Room room;
 	Reservation reservation;
@@ -90,7 +123,7 @@ bool CancelReservation(string &path, vector <Room> &rooms_data, vector <Reservat
 	cout << CANCELRESERVATION_INP_ROOMNUM;
 	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), CANCELRESERVATION_INP_ROOMNUM);
 
-	reservation.id = FindRoomID(room.room_number, rooms_data);
+	reservation.id = FindRoomID(room.room_number, rooms);
 
 	if (reservation.id == -1)
 	{
@@ -100,7 +133,7 @@ bool CancelReservation(string &path, vector <Room> &rooms_data, vector <Reservat
 
 	reservation = GetReservationDate(reservation);
 
-	if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
+	if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms, reservations))
 	{
 		cout << CANCELRESERVATION_NOT_RESERVED;
 		return false;
@@ -110,21 +143,21 @@ bool CancelReservation(string &path, vector <Room> &rooms_data, vector <Reservat
 
 	if (YesNoCheck())
 	{
-		if (!CheckReservationsIntegrity(path, reservations_data))
+		if (!CheckReservationsIntegrity(path, reservations))
 		{
 			return false;
 		}
 
-		int index = FindReservationIndex(reservation.id, reservation.day, reservation.month, reservation.year, reservations_data);
+		int index = FindReservationIndex(reservation.id, reservation.day, reservation.month, reservation.year, reservations);
 
 		if (index == -1)
 		{
 			return false;
 		}
 
-		reservations_data.erase(reservations_data.begin() + index);
+		reservations.erase(reservations.begin() + index);
 
-		if (!SaveReservationsStructure(path, reservations_data))
+		if (!SaveReservationsStructure(path, reservations))
 		{
 			return false;
 		}
@@ -137,7 +170,16 @@ bool CancelReservation(string &path, vector <Room> &rooms_data, vector <Reservat
 	return true;
 }
 
-bool MakeReservation(string &path, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
+///
+/// @brief Funkce, ktera vytvori rezervaci
+/// @param	path			Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	rooms			Vektor s ulozenymi mistnostmi
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @retval	true			Funkce vraci hodnotu true, jestlize se uspesne podari rezervaci vytvorit
+/// @retval false			Funkce vraci hodnotu false s chybovou hlaskou, ktera definuje proc se rezervaci nepodarilo vytvorit
+///
+
+bool MakeReservation(string &path, vector <Room> &rooms, vector <Reservation> &reservations)
 {
 	Room room;
 	Reservation reservation;
@@ -147,7 +189,7 @@ bool MakeReservation(string &path, vector <Room> &rooms_data, vector <Reservatio
 	cout << CREATERESERVATION_INP_ROOMNUM;
 	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), CREATERESERVATION_INP_ROOMNUM);
 
-	reservation.id = FindRoomID(room.room_number, rooms_data);
+	reservation.id = FindRoomID(room.room_number, rooms);
 
 	if (reservation.id == -1)
 	{
@@ -159,7 +201,7 @@ bool MakeReservation(string &path, vector <Room> &rooms_data, vector <Reservatio
 
 	reservation = GetReservationDate(reservation);	
 
-	if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms_data, reservations_data))
+	if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms, reservations))
 	{
 		cout << CREATERESERVATION_NOT_AVAILABLE;
 		return false;
@@ -169,13 +211,13 @@ bool MakeReservation(string &path, vector <Room> &rooms_data, vector <Reservatio
 
 	if (YesNoCheck())
 	{
-		if (!CheckReservationsIntegrity(path, reservations_data))
+		if (!CheckReservationsIntegrity(path, reservations))
 		{
 			return false;
 		}
-		reservations_data.push_back(reservation);
+		reservations.push_back(reservation);
 		// Pokud zbyde èas, pøidat do zvláštní funkce
-		if (!AppendRecordToFile(path, reservation))
+		if (!AppendRecordToReservationFile(path, reservation))
 		{
 			return false;
 		}
@@ -249,10 +291,10 @@ void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &res
 
 ///
 /// @brief Funkce, ktera ulozi obsah vektoru do CSV souboru se seznamem rezervaci
-/// @param	path	Cesta k souboru, ktery obsahuje seznam rezervaci
-/// @param	data	Vektor s ulozenymi rezervacemi
-/// @retval true	Funkce vraci hodnotu true, jestlize ulozeni souboru probehlo uspesne
-/// @retval false	Funkce vraci hodnotu false, jestlize ulozeni souboru skoncilo chybou
+/// @param	path			Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @retval true			Funkce vraci hodnotu true, jestlize ulozeni souboru probehlo uspesne
+/// @retval false			Funkce vraci hodnotu false, jestlize ulozeni souboru skoncilo chybou
 ///
 
 bool SaveReservationsStructure(string &path, vector <Reservation> &reservations)
@@ -285,6 +327,12 @@ bool SaveReservationsStructure(string &path, vector <Reservation> &reservations)
 
 	return true;
 }
+
+///
+/// @brief Funkce, ktera prevede data ze stringu do struktury Reservation
+/// @param	row		String, ktery obsahuje radek v CSV souboru, ktery se ma prevest
+/// @return	Funkce vraci strukturu Reservation s prevedenymi daty
+///
 
 Reservation ParserReservation(string row)
 {
