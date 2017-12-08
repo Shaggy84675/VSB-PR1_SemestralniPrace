@@ -8,6 +8,27 @@
 #include <iomanip>
 #include <sstream>
 
+bool AppendRecordToRoomFile(string &path, Room &room)
+{
+	ofstream out;
+	out.open(path, ios::app);
+
+	if (!out.is_open())
+	{
+		return false;
+	}	
+
+	out << room.id << ";"
+		<< room.floor << ";"
+		<< room.room_number << ";"
+		<< room.seat_capacity << ";"
+		<< room.reservation_price << endl;
+
+	out.close();
+
+	return true;
+}
+
 bool IsRoomValid(Room room)
 {
 	if (room.id < ROOM_ID_MIN_LENGTH || room.id > ROOM_ID_MAX_LENGTH)
@@ -24,6 +45,8 @@ bool IsRoomValid(Room room)
 
 	if (room.reservation_price < ROOM_PRICE_MIN_LENGTH || room.reservation_price > ROOM_PRICE_MAX_LENGTH)
 		return false;
+
+	return true;
 }
 
 Room ParserRoom(string row)
@@ -50,7 +73,7 @@ Room ParserRoom(string row)
 	return room;	
 }
 
-bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
+bool selectFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservation_data)
 {
 	Reservation reservation;
 	int input;
@@ -109,7 +132,7 @@ bool selectFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservatio
 	return false;
 }
 
-void PrintRooms(vector <struct Room> &data)
+void PrintRooms(vector <Room> &data)
 {
 	cout << "+" << setw(62) << setfill('-') << "+" << endl;
 	cout << "| Mistnost | Patro | Kapacita sedadel | Cena za den rezervace |" << endl;
@@ -130,7 +153,7 @@ void PrintRooms(vector <struct Room> &data)
 	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
 }
 
-vector <struct Room> getRoomsOnDate(short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
+vector <struct Room> getRoomsOnDate(short day, short month, short year, vector <Room> &rooms_data, vector <Reservation> &reservation_data)
 {
 	vector<struct Room> free_rooms;
 
@@ -144,7 +167,7 @@ vector <struct Room> getRoomsOnDate(short day, short month, short year, vector <
 	return free_rooms;
 }
 
-vector<struct Room> getRoomsOnSeats(int seats, vector <struct Room> &data)
+vector<struct Room> getRoomsOnSeats(int seats, vector <Room> &data)
 {
 	vector<struct Room> free_rooms;
 
@@ -158,7 +181,7 @@ vector<struct Room> getRoomsOnSeats(int seats, vector <struct Room> &data)
 	return free_rooms;
 }
 
-vector<struct Room> getRoomsOnPrice(int price, vector <struct Room> &data)
+vector<struct Room> getRoomsOnPrice(int price, vector <Room> &data)
 {
 	vector<struct Room> free_rooms;
 	for (unsigned int i = 0; i < data.size(); i++)
@@ -171,7 +194,7 @@ vector<struct Room> getRoomsOnPrice(int price, vector <struct Room> &data)
 	return free_rooms;
 }
 
-vector<struct Room> getRoomsOnFloor(short floor, vector <struct Room> &data)
+vector<struct Room> getRoomsOnFloor(short floor, vector <Room> &data)
 {
 	vector<struct Room> free_rooms;
 	for (unsigned int i = 0; i < data.size(); i++)
@@ -184,7 +207,7 @@ vector<struct Room> getRoomsOnFloor(short floor, vector <struct Room> &data)
 	return free_rooms;
 }
 
-vector<struct Room> getFreeRooms(vector <struct Room> &rooms_data, vector <struct Reservation> &reservation_data)
+vector<struct Room> getFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservation_data)
 {
 	vector<struct Room> free_rooms;
 	for (unsigned int i = 0; i < rooms_data.size(); i++)
@@ -197,7 +220,7 @@ vector<struct Room> getFreeRooms(vector <struct Room> &rooms_data, vector <struc
 	return free_rooms;
 }
 
-bool IsRoomFree(int room_id, short day, short month, short year, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+bool IsRoomFree(int room_id, short day, short month, short year, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
 {
 	for (unsigned int i = 0; i < reservations_data.size(); i++)
 	{
@@ -212,7 +235,7 @@ bool IsRoomFree(int room_id, short day, short month, short year, vector <struct 
 	return true;
 }
 
-bool IsRoomFree(int room_id, vector <struct Reservation> &reservation_data)
+bool IsRoomFree(int room_id, vector <Reservation> &reservation_data)
 {
 	for (unsigned int i = 0; i < reservation_data.size(); i++)
 	{
@@ -224,7 +247,7 @@ bool IsRoomFree(int room_id, vector <struct Reservation> &reservation_data)
 	return true;
 }
 
-int FindRoomID(int room, vector <struct Room> &data)
+int FindRoomID(int room, vector <Room> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
@@ -236,7 +259,7 @@ int FindRoomID(int room, vector <struct Room> &data)
 	return -1;
 }
 
-int FindRoomIndex(int room, vector <struct Room> &data)
+int FindRoomIndex(int room, vector <Room> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
@@ -248,7 +271,7 @@ int FindRoomIndex(int room, vector <struct Room> &data)
 	return -1;
 }
 
-bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Room> &rooms_data, vector <struct Reservation> &reservations_data)
+bool RemoveRoom(string &rooms_path, string &reservations_path, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
 {
 	int index;
 	int room_id;
@@ -257,7 +280,7 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Ro
 	PrintRoomsTable(rooms_data);
 
 	cout << REMOVEROOM_INPUT;
-	GET_INPUT(remove_what, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), REMOVEROOM_INPUT);
+	GET_INPUT(remove_what, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_LENGTH, ROOM_ROOMNUM_MAX_LENGTH), REMOVEROOM_INPUT);
 
 	index = FindRoomIndex(remove_what, rooms_data);
 	room_id = FindRoomID(remove_what, rooms_data);
@@ -284,7 +307,7 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <struct Ro
 	return true;
 }
 
-void PrintRoomsTable(vector <struct Room> &data)
+void PrintRoomsTable(vector <Room> &data)
 {
 	cout << "+" << setw(71) << setfill('-') << "+" << endl;
 	cout << "|   ID   | Patro | Mistnost | Kapacita sedadel | Cena za den rezervace |" << endl;
@@ -307,7 +330,7 @@ void PrintRoomsTable(vector <struct Room> &data)
 	cout << "+" << setw(71) << setfill('-') << right << "+" << endl;
 }
 
-bool SaveRoomsStructure(string &path, vector <struct Room> &data)
+bool SaveRoomsStructure(string &path, vector <Room> &data)
 {
 	fstream file;
 	string s;
@@ -339,14 +362,14 @@ bool SaveRoomsStructure(string &path, vector <struct Room> &data)
 	return true;
 }
 
-bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data)
+bool AddNewRoom(string &path, vector <Room> &data)
 {
 	Room room;
 
 	cout << ADDROOM_INPUT;
 	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), ADDROOM_INPUT);
 
-	if (RoomExists(room.room_number, rooms_data))
+	if (RoomExists(room.room_number, data))
 	{
 		cout << ADDROOM_ROOMNUM_EXISTS(room.room_number) << endl;
 		return false;
@@ -370,27 +393,15 @@ bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data)
 
 	if (YesNoCheck())
 	{
-		ofstream out_rooms;
-		out_rooms.open(rooms_path, ios::app);
-
-		if (!out_rooms.is_open())
+		if (!CheckRoomsIntegrity(path, data))
 		{
 			return false;
 		}
 
-		CheckRoomsIntegrity(rooms_path, rooms_data);		
+		room.id = data.back().id + 1;
+		data.push_back(room);
 
-		room.id = rooms_data.back().id + 1;
-
-		rooms_data.push_back(room);
-
-		out_rooms << room.id << ";"
-			<< room.floor << ";"
-			<< room.room_number << ";"
-			<< room.seat_capacity << ";"
-			<< room.reservation_price << endl;
-
-		out_rooms.close();
+		AppendRecordToRoomFile(path, room);
 	}
 	else
 	{
@@ -401,7 +412,7 @@ bool AddNewRoom(string &rooms_path, vector <struct Room> &rooms_data)
 	return true;
 }
 
-bool CheckRoomsIntegrity(string &path, vector <struct Room> &data)
+bool CheckRoomsIntegrity(string &path, vector <Room> &data)
 {
 	ifstream file;
 	bool passed = true;
@@ -510,7 +521,7 @@ bool CheckRoomsIntegrity(string &path, vector <struct Room> &data)
 	return false;
 }
 
-bool RoomExists(int room, vector <struct Room> &data)
+bool RoomExists(int room, vector <Room> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
@@ -522,7 +533,7 @@ bool RoomExists(int room, vector <struct Room> &data)
 	return false;
 }
 
-bool RoomIdExists(int id, vector <struct Room> &data)
+bool RoomIdExists(int id, vector <Room> &data)
 {
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
@@ -534,7 +545,7 @@ bool RoomIdExists(int id, vector <struct Room> &data)
 	return false;
 }
 
-bool FillRoomsStructure(string &path, vector <struct Room> &data)
+bool FillRoomsStructure(string &path, vector <Room> &data)
 {
 	ifstream rooms_file;
 	Room room;
