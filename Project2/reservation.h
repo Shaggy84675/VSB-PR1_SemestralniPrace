@@ -36,3 +36,5 @@ bool IsReservationValid(Reservation reservation);
 bool AppendRecordToReservationFile(string &path, Reservation &reservation);
 Reservation ParserReservation(string row);
 Reservation GetReservationDate(Reservation &reservation);
+void GetTableRoomHeader();
+void GetTableRoomSeparator(const int size);

@@ -94,7 +94,7 @@ bool selectFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservatio
 
 			sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
 
-			if ((reservation.day > 31 || reservation.day < 0) || (reservation.month > 12 || reservation.month < 0) || (reservation.year < 2000 || reservation.year > 9999))
+			if (!IsDateValid(reservation.day, reservation.month, reservation.year))
 			{
 				cout << INP_DATE_INVALID << endl;
 				continue;
@@ -153,9 +153,9 @@ void PrintRooms(vector <Room> &data)
 	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
 }
 
-vector <struct Room> getRoomsOnDate(short day, short month, short year, vector <Room> &rooms_data, vector <Reservation> &reservation_data)
+vector<Room> getRoomsOnDate(short day, short month, short year, vector <Room> &rooms_data, vector <Reservation> &reservation_data)
 {
-	vector<struct Room> free_rooms;
+	vector<Room> free_rooms;
 
 	for (unsigned int i = 0; i < rooms_data.size(); i++)
 	{
@@ -167,9 +167,9 @@ vector <struct Room> getRoomsOnDate(short day, short month, short year, vector <
 	return free_rooms;
 }
 
-vector<struct Room> getRoomsOnSeats(int seats, vector <Room> &data)
+vector<Room> getRoomsOnSeats(int seats, vector <Room> &data)
 {
-	vector<struct Room> free_rooms;
+	vector<Room> free_rooms;
 
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
@@ -181,9 +181,9 @@ vector<struct Room> getRoomsOnSeats(int seats, vector <Room> &data)
 	return free_rooms;
 }
 
-vector<struct Room> getRoomsOnPrice(int price, vector <Room> &data)
+vector<Room> getRoomsOnPrice(int price, vector <Room> &data)
 {
-	vector<struct Room> free_rooms;
+	vector<Room> free_rooms;
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
 		if (data[i].reservation_price <= price)
@@ -194,9 +194,9 @@ vector<struct Room> getRoomsOnPrice(int price, vector <Room> &data)
 	return free_rooms;
 }
 
-vector<struct Room> getRoomsOnFloor(short floor, vector <Room> &data)
+vector<Room> getRoomsOnFloor(short floor, vector <Room> &data)
 {
-	vector<struct Room> free_rooms;
+	vector<Room> free_rooms;
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
 		if (data[i].floor == floor)
@@ -207,9 +207,9 @@ vector<struct Room> getRoomsOnFloor(short floor, vector <Room> &data)
 	return free_rooms;
 }
 
-vector<struct Room> getFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservation_data)
+vector<Room> getFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservation_data)
 {
-	vector<struct Room> free_rooms;
+	vector<Room> free_rooms;
 	for (unsigned int i = 0; i < rooms_data.size(); i++)
 	{
 		if (IsRoomFree(rooms_data[i].id, reservation_data))

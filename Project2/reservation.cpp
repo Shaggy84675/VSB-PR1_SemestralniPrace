@@ -17,6 +17,23 @@
 #include <cstdio>
 
 
+void GetTableRoomSeparator(const int size)
+{
+	cout << "+" << setw(size) << setfill('-') << "+" << endl;
+}
+
+void GetTableRoomHeader()
+{
+	cout << "| " << TABLECELL_ROOM << " | " << TABLECELL_FLOOR << " | " << TABLECELL_SEATS << " | " << TABLECELL_PRICE << " |  " << TABLECELL_RESERVEDATE << "  |" << endl;
+	cout << left << setw(11) << setfill('-') << "+"
+		<< left << setw(8) << setfill('-') << "+"
+		<< left << setw(19) << setfill('-') << "+"
+		<< left << setw(17) << setfill('-') << "+"
+		<< left << setw(20) << setfill('-') << "+"
+		<< left << "+" << endl;
+}
+
+
 ///
 /// @brief Funkce, ktera zjistuje datum rezervace na zaklade vstupu z konzole a nasledne ulozi do struktury Reservation
 /// @param	reservation	Struktura Reservation
@@ -80,9 +97,7 @@ bool IsReservationValid(Reservation reservation)
 	{
 		return false;
 	}
-	else if ((reservation.day > RESERVATION_DAY_MAX_LENGTH || reservation.day < RESERVATION_DAY_MIN_LENGTH) ||
-		(reservation.month > RESERVATION_MONTH_MAX_LENGTH || reservation.month < RESERVATION_MONTH_MIN_LENGTH) ||
-		(reservation.year < RESERVATION_YEAR_MIN_LENGTH || reservation.year > RESERVATION_YEAR_MAX_LENGTH))
+	else if (!IsDateValid(reservation.day, reservation.month, reservation.year))
 	{
 		cout << INP_DATE_INVALID << endl;
 		return false;
@@ -115,13 +130,16 @@ int FindReservationIndex(int id, short day, short month, short year, vector <Res
 	return -1;
 }
 
+///
+///
+
 bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> &reservations)
 {
 	Room room;
 	Reservation reservation;
 
 	cout << CANCELRESERVATION_INP_ROOMNUM;
-	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), CANCELRESERVATION_INP_ROOMNUM);
+	GET_INPUT(room.room_number, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_LENGTH, ROOM_ROOMNUM_MAX_LENGTH), CANCELRESERVATION_INP_ROOMNUM);
 
 	reservation.id = FindRoomID(room.room_number, rooms);
 
@@ -131,11 +149,18 @@ bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> 
 		return false;
 	}
 
+	if (IsRoomFree(reservation.id, reservations))
+	{
+		cout << ROOM_NOT_RESERVED << endl;
+		return false;
+	}
+
+	cout << CANCELRESERVATION_INP_DATE << endl;
 	reservation = GetReservationDate(reservation);
 
 	if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms, reservations))
 	{
-		cout << CANCELRESERVATION_NOT_RESERVED;
+		cout << ROOM_NOT_RESERVED << endl;
 		return false;
 	}
 
@@ -152,6 +177,7 @@ bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> 
 
 		if (index == -1)
 		{
+			cout << ROOM_INDEX_NOT_FOUND << endl;
 			return false;
 		}
 
@@ -230,18 +256,15 @@ bool MakeReservation(string &path, vector <Room> &rooms, vector <Reservation> &r
 	return true;
 }
 
+///
+///
+
 void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &reservations_data)
 {
 	unsigned int records = 0;
 
-	cout << "+" << setw(76) << setfill('-') << "+" << endl;
-	cout << "| Mistnost | Patro | Kapacita sedadel | Cena rezervace | Rezervovana na den |" << endl;
-	cout << left << setw(11) << setfill('-') << "+"
-		<< left << setw(8) << setfill('-') << "+"
-		<< left << setw(19) << setfill('-') << "+"
-		<< left << setw(17) << setfill('-') << "+"
-		<< left << setw(21) << setfill('-') << "+"
-		<< left << "+" << endl;
+	GetTableRoomSeparator(75);
+	GetTableRoomHeader();
 
 	for (unsigned int i = 0; i < rooms_data.size(); i++)
 	{
@@ -252,7 +275,7 @@ void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &res
 		cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
 			<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
 			<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
-			<< left << "| " << setw(15) << setfill(' ') << curr.str();
+			<< right << "| " << setw(14) << setfill(' ') << curr.str() << " ";
 
 		for (unsigned int j = 0; j < reservations_data.size(); j++)
 		{
@@ -262,7 +285,7 @@ void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &res
 				date << reservations_data[j].day << ".";
 				cout << left << "| " << setw(3) << setfill(' ') << date.str()
 					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations_data[j].month)
-					<< left << "  " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
+					<< left << " " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
 				records++;
 			}
 			
@@ -276,17 +299,17 @@ void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &res
 					<< left << "| " << setw(15) << setfill(' ') << ""
 					<< left << "| " << setw(3) << setfill(' ') << date.str()
 					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations_data[j].month)
-					<< left << "  " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
+					<< left << " " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
 			}			
 		}
 
 		if (records == 0)
 		{
-			cout << left << "| " << setw(18) << setfill(' ') << " - " << " |" << endl;
+			cout << left << "| " << setw(17) << setfill(' ') << " - " << " |" << endl;
 		}
 	}
 
-	cout << "+" << setw(76) << setfill('-') << right << "+" << endl;
+	GetTableRoomSeparator(75);
 }
 
 ///
@@ -460,7 +483,7 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 
 void PrintReservations(vector <Reservation> &reservations)
 {
-	cout << "+" << setw(27) << setfill('-') << "+" << endl;
+	GetTableRoomSeparator(27);
 	cout << "|   " << TABLECELL_ID << "   | " << TABLECELL_RESERVEDATE << " |" << endl;
 	cout << left << setw(9) << setfill('-') << "+"
 		<< left << setw(18) << setfill('-') << "+"
@@ -475,7 +498,7 @@ void PrintReservations(vector <Reservation> &reservations)
 		cout << left << "| " << setw(7) << setfill(' ') << reservations[i].id;
 		cout << left << "| " << setw(16) << setfill(' ') << date.str() << "|" << endl;
 	}
-	cout << "+" << setw(27) << setfill('-') << right << "+" << endl;
+	GetTableRoomSeparator(27);
 }
 
 ///

@@ -4,6 +4,17 @@
 #include <iostream>
 
 
+bool IsDateValid(short day, short month, short year)
+{
+	if ((day > RESERVATION_DAY_MAX_LENGTH || day < RESERVATION_DAY_MIN_LENGTH) ||
+		(month > RESERVATION_MONTH_MAX_LENGTH || month < RESERVATION_MONTH_MIN_LENGTH) ||
+		(year < RESERVATION_YEAR_MIN_LENGTH || year > RESERVATION_YEAR_MAX_LENGTH))
+	{
+		return false;
+	}
+	return true;
+}
+
 string GetMonthName(int month)
 {
 	switch (month)

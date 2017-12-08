@@ -24,6 +24,7 @@ while (!(cin >> var)) \
 using namespace std;
 
 string GetMonthName(int month);
+bool IsDateValid(short day, short month, short year);
 
 int ShowMainMenu();
 bool YesNoCheck();

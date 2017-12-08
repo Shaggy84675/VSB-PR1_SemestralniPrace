@@ -2,7 +2,7 @@
 
 #define ERROR_FILE_NOT_FOUND(filename)					"Neco se nepovedlo :( \nMame problemy nalezt potrebny soubor " << filename << \
 														" umisteny v adresari vstupnidata. \nProsim zkontrolujte dostupnost souboru a zkuste to znovu."
-#define TABLE_LOAD_ERR(tablename)						"Neco se nepovedlo :( \nMame problemy nacist data ze souboru seznam_" << tablename << "."
+#define TABLE_LOAD_ERR(tablename)						"Neco se nepovedlo :( \nMame problemy nacist data ze souboru " << tablename << "."
 #define YES_NO_INP_ERR									"Zadana moznost musi byt typu A - ano, N - ne "
 
 #define INP_ERR											"Byla zadana chybna moznost. \nProsim zadejte nasledujici moznosti: "
@@ -13,7 +13,11 @@
 //Zpravy pro praci s mistnostmi
 
 #define ROOM_INP_ERR(inpmin, inpmax)					"Zadano chybne cislo mistnosti \nCislo mistnosti musi byt cele cislo od " << inpmin << " do " << inpmax
-#define ROOM_NOT_FOUND_ERR								"Pozadovanou mistnost se nepodarilo nalezt "
+#define ROOM_NOT_FOUND_ERR								"Pozadovanou mistnost se nepodarilo nalezt"
+#define ROOM_INDEX_NOT_FOUND							"Index mistnosti se nepodarilo nalezt"
+#define ROOM_NOT_RESERVED								"Zadana mistnost neni na tento den rezervovana"
+
+//
 
 #define ADDROOM_INPUT									"Zadejte cislo mistnosti, kterou chcete pridat: " 
 #define ADDROOM_ROOMNUM_EXISTS(room)					"Mistnost " << room << " jiz v seznamu mistnosti je"
@@ -44,7 +48,6 @@
 #define CREATERESERVATION_CANCELED						"Rezervace mistnosti bylo zruseno"
 
 #define CANCELRESERVATION_INP_ROOMNUM					"Zadejte cislo mistnosti, pro kterou si prejete zrusit rezervaci: "
-#define CANCELRESERVATION_NOT_RESERVED					"Zadana mistnost neni na tento den rezervovana"
 #define CANCELRESERVATION_INP_DATE						"Zadejte datum zruseni rezervace ve formatu (DD.MM.YYYY) nebo (D.M.YYYY): "
 #define CANCELRESERVATION_INP_CONFIRM(room)				"Prejete si zrusit rezervaci mistnosti " << room << " ? (A/N) "
 #define CANCELRESERVATION_SUCCESS						"Rezervace mistnosti byla uspesne zrusena"
@@ -67,6 +70,10 @@
 
 #define	TABLECELL_ID									"ID"
 #define TABLECELL_RESERVEDATE							"Datum rezervace"
+#define TABLECELL_ROOM									"Mistnost"
+#define TABLECELL_FLOOR									"Patro"
+#define TABLECELL_SEATS									"Kapacita sedadel"
+#define TABLECELL_PRICE									"Cena rezervace"
 
 void WelcomeMessage();
 void PrintMainMenu();
