@@ -57,11 +57,11 @@
 #define CHECKINTEGRITY_ERROR							"Neco se nepovedlo :( \nNekonzistentni data. Zkontrolujte obsah vstupnich dat a akci opakujte."
 
 #define CHECKROOMINTEGRITY_ERROR						"Neco se nepovedlo :( \nNesouhlasi data ze souboru s daty v programu. \nPravdepodobne doslo ke zmene dat pri behu programu. \n"
-#define CHECKROOMINTEGRITY_DETAIL(row, column)			"Radek v souboru seznam_mistnosti.csv: " << row << " polozka: " << column
+#define CHECKROOMINTEGRITY_DETAIL(row, column)			"Radek v souboru se seznamem mistnosti: " << row << " polozka: " << column
 #define CHECKROOMINTEGRITY_ADD							"Prejete si upravena data v souboru nahrat do programu a prepsat? (A/N) \nV pripade ze zvolite ne, budou data v souboru prepsana zpet: "
 #define CHECKROOMINTEGRITY_SUCCESS						"Data ze souboru byly uspesne nahrany do programu "
 
-#define CHECKRESERVATIONINTEGRITY_DETAIL(row, column)	"Radek v souboru seznam_rezervaci.csv: " << row << " polozka: " << column
+#define CHECKRESERVATIONINTEGRITY_DETAIL(row)			"Radek v souboru se seznamem rezervaci: " << row
 
 #define SELECTFREEROOMS_FLOOR_INP						"Zadejte patro na kterem si prejete volne mistnosti vyhledat: "
 #define SELECTFREEROOMS_DATE_INP						"Zadejte datum ve formatu (DD.MM.YYYY) nebo (D.M.YYYY) na ktere si prejete volne mistnosti vyhledat: "

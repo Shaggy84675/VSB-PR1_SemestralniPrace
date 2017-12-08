@@ -17,29 +17,25 @@
 #include <cstdio>
 
 
-bool ReservationComparator(int position, Reservation reservation_old, Reservation reservation_new)
+bool ReservationComparator(Reservation reservation_old, Reservation reservation_new)
 {
 	if (reservation_old.id != reservation_new.id)
 	{
-		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "id") << endl;
 		return false;
 	}
 
 	if (reservation_old.day != reservation_new.day)
 	{
-		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum") << endl;
 		return false;
 	}
 
 	if (reservation_old.month != reservation_new.month)
 	{
-		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum") << endl;
 		return false;
 	}
 
 	if (reservation_old.year != reservation_new.year)
 	{
-		cout << CHECKRESERVATIONINTEGRITY_DETAIL(position, "datum") << endl;
 		return false;
 	}
 
@@ -444,10 +440,10 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 		{
 			reservation = ParserReservation(s);
 
-			if (!ReservationComparator(position, reservation, data[position]))
+			if (!ReservationComparator(reservation, data[position]))
 			{
 				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				
+				cout << CHECKRESERVATIONINTEGRITY_DETAIL(position) << endl;
 				passed = false;
 			}
 			
@@ -460,7 +456,6 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 		passed = false;
 		file.close();
 	}
-
 
 	if (!passed)
 	{
