@@ -9,10 +9,10 @@ using namespace std;
 void PrintSubMenu()
 {
 	cout << "a - Vyhledat volne mistnosti na urcity datum" << endl
-		<< "b - Vyhledat volne mistnosti do urcite ceny" << endl
-		<< "c - Vyhledat volne mistnosti do urcite kapacity osob" << endl
-		<< "d - Vyhledat volne mistnosti nad urcitou kapacitu osob" << endl
-		<< "e - Vyhledat volne mistnosti na konkretnim patre" << endl
+		<< "b - Vyhledat mistnosti do urcite ceny" << endl
+		<< "c - Vyhledat mistnosti do urcite kapacity osob" << endl
+		<< "d - Vyhledat mistnosti nad urcitou kapacitu osob" << endl
+		<< "e - Vyhledat mistnosti na konkretnim patre" << endl
 		<< "f - Vyhledat vsechny volne mistnosti" << endl
 		<< "q - Vratit se do hlavni nabidky" << endl
 		<< setw(74) << setfill('-') << "" << endl

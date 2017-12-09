@@ -1,3 +1,10 @@
+///
+/// @brief Soubor obsahuje funkce pro praci s mistnostmi
+/// @author Patrik Leifert
+/// @file room.cpp
+/// @date Prosinec 2017
+///
+
 #include "room.h"
 #include "message.h"
 #include "reservation.h"

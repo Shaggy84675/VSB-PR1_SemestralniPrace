@@ -404,7 +404,15 @@ Reservation ParserReservation(string row)
 	return reservation;
 }
 
-bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
+///
+/// @brief	Funkce, ktera zkontroluje integritu mezi daty v aplikaci a CSV souboru
+/// @param	path			Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	reservations	Vektor s rezervacemi, ktery se ma naplnit
+/// @retval	true			Funkce vraci hodnotu true, jestlize jsou data v souboru stejna jako v aplikaci
+/// @retval	false			Funkce vraci hodnotu false, jestlize nastal problem pri kontrole
+///
+
+bool CheckReservationsIntegrity(string &path, vector <Reservation> &reservations)
 {
 	ifstream file;
 	bool passed = true;
@@ -430,7 +438,7 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 		}
 	}
 
-	if (data.size() == file_records)
+	if (reservations.size() == file_records)
 	{
 		unsigned int position = 0;
 		file.clear();
@@ -441,7 +449,7 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 		{
 			reservation = ParserReservation(s);
 
-			if (!ReservationComparator(reservation, data[position]))
+			if (!ReservationComparator(reservation, reservations[position]))
 			{
 				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
 				cout << CHECKRESERVATIONINTEGRITY_DETAIL(position) << endl;
@@ -463,13 +471,13 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &data)
 		cout << CHECKROOMINTEGRITY_ADD;
 		if (YesNoCheck())
 		{
-			data.clear();
-			FillReservationsStructure(path, data);
+			reservations.clear();
+			FillReservationsStructure(path, reservations);
 			cout << CHECKROOMINTEGRITY_SUCCESS << endl;
 		}
 		else
 		{
-			SaveReservationsStructure(path, data);
+			SaveReservationsStructure(path, reservations);
 		}
 	}
 	return true;
