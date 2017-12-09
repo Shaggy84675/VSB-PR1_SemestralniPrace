@@ -37,10 +37,10 @@ int main()
 	{
 		switch (ShowMainMenu())
 		{
-		case 0:
+		case EXIT_APPLICATION:
 			return 0;
 			break;
-		case 1:
+		case MAKE_RESERVATION:
 			PrintRoomsTable(rooms);
 			if (MakeReservation(reservations_path, rooms, reservations))
 			{
@@ -48,7 +48,7 @@ int main()
 			}
 			cout << endl;
 			break;
-		case 2:
+		case CANCEL_RESERVATION:
 			PrintReservationsTable(rooms, reservations);
 			if (CancelReservation(reservations_path, rooms, reservations))
 			{
@@ -56,18 +56,18 @@ int main()
 			}
 			cout << endl;
 			break;
-		case 3:
+		case SEARCH_FREE_ROOMS:
 			selectFreeRooms(rooms, reservations);
 			break;
-		case 4:
+		case SHOW_ROOMS_TABLE:
 			PrintRoomsTable(rooms);
 			cout << endl;
 			break;
-		case 5:
+		case SHOW_RESERVATIONS_TABLE:
 			PrintReservations(reservations);
 			cout << endl;
 			break;
-		case 6:
+		case ADD_ROOM:
 			if (AddNewRoom(rooms_path, rooms))
 			{
 				cout << ADDROOM_SUCCESS << endl;
@@ -76,7 +76,7 @@ int main()
 			}
 			cout << endl;
 			break;
-		case 7:
+		case REMOVE_ROOM:
 		{
 			bool remove = RemoveRoom(rooms_path, reservations_path, rooms, reservations);			
 			cout << endl;

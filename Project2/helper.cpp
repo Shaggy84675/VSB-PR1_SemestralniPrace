@@ -4,11 +4,26 @@
 #include <iostream>
 
 
+void GenerateHTMLFooter(ofstream &out)
+{
+	out << "<p>Vygenerovano programem: Rezervace mistnosti</p></html>";
+}
+
+void GenerateHTMLHeader(ofstream &out)
+{
+	out << "<!DOCTYPE html><html><head><title>Rezervace mistnosti</title> \
+		<style>body{font-family: Segoe UI Light;} \
+		table{border-collapse: collapse; width: 100%;} \
+		th{font-family: Segoe UI; font-weight: bold;} \
+		td, th{border: 1px solid #808080; padding: 8px;} \
+		tr:nth-child(even) {background-color: #ABABAB;}</style></head>" << endl;
+}
+
 bool IsDateValid(short day, short month, short year)
 {
-	if ((day > RESERVATION_DAY_MAX_LENGTH || day < RESERVATION_DAY_MIN_LENGTH) ||
-		(month > RESERVATION_MONTH_MAX_LENGTH || month < RESERVATION_MONTH_MIN_LENGTH) ||
-		(year < RESERVATION_YEAR_MIN_LENGTH || year > RESERVATION_YEAR_MAX_LENGTH))
+	if ((day > RESERVATION_DAY_MAX_VALUE || day < RESERVATION_DAY_MIN_VALUE) ||
+		(month > RESERVATION_MONTH_MAX_VALUE || month < RESERVATION_MONTH_MIN_VALUE) ||
+		(year < RESERVATION_YEAR_MIN_VALUE || year > RESERVATION_YEAR_MAX_VALUE))
 	{
 		return false;
 	}
@@ -114,4 +129,3 @@ char ShowSubMenu()
 
 	return option;
 }
-

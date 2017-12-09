@@ -44,7 +44,7 @@ bool ReservationComparator(Reservation reservation_old, Reservation reservation_
 
 void GetTableRoomSeparator(const int size)
 {
-	cout << "+" << setw(size) << setfill('-') << "+" << endl;
+	cout << "+" << setw(size) << setfill('-') << right << "+" << endl;
 }
 
 void GetTableRoomHeader()
@@ -118,7 +118,7 @@ bool AppendRecordToReservationFile(string &path, Reservation &reservation)
 
 bool IsReservationValid(Reservation reservation)
 {
-	if (reservation.id < RESERVATION_ID_MIN_LENGTH || reservation.id > RESERVATION_ID_MAX_LENGTH)
+	if (reservation.id < RESERVATION_ID_MIN_VALUE || reservation.id > RESERVATION_ID_MAX_VALUE)
 	{
 		return false;
 	}
@@ -133,11 +133,11 @@ bool IsReservationValid(Reservation reservation)
 ///
 /// @brief Funkce, ktera zjisti pozici rezervace ve vektoru Reservation na zaklade zadaneho id a data
 /// @param	id		ID mistnosti
-/// @param	day		Datum rezervace mistnosti
+/// @param	day		Den rezervace mistnosti
 /// @param	month	Mesic rezervace mistnosti
 /// @param	year	Rok rezervace mistnosti
 /// @param	data	Vektor s ulozenymi rezervacemi
-/// @return	Funkce vraci index pozice ve vektoru. Pokud pozici nenalezne, vrati cislo -1.
+/// @return	Funkce vraci index pozice rezervace ve vektoru. Pokud pozici nenalezne, vrati cislo -1.
 ///
 
 int FindReservationIndex(int id, short day, short month, short year, vector <Reservation> &data)
@@ -164,7 +164,7 @@ bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> 
 	Reservation reservation;
 
 	cout << CANCELRESERVATION_INP_ROOMNUM;
-	GET_INPUT(room.room_number, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_LENGTH, ROOM_ROOMNUM_MAX_LENGTH), CANCELRESERVATION_INP_ROOMNUM);
+	GET_INPUT(room.room_number, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), CANCELRESERVATION_INP_ROOMNUM);
 
 	reservation.id = FindRoomID(room.room_number, rooms);
 
@@ -183,18 +183,18 @@ bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> 
 	cout << CANCELRESERVATION_INP_DATE << endl;
 	reservation = GetReservationDate(reservation);
 
-	if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms, reservations))
-	{
-		cout << ROOM_NOT_RESERVED << endl;
-		return false;
-	}
-
 	cout << CANCELRESERVATION_INP_CONFIRM(room.room_number);
 
 	if (YesNoCheck())
 	{
 		if (!CheckReservationsIntegrity(path, reservations))
 		{
+			return false;
+		}
+
+		if (IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, reservations))
+		{
+			cout << ROOM_NOT_RESERVED << endl;
 			return false;
 		}
 
@@ -252,12 +252,6 @@ bool MakeReservation(string &path, vector <Room> &rooms, vector <Reservation> &r
 
 	reservation = GetReservationDate(reservation);	
 
-	if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, rooms, reservations))
-	{
-		cout << CREATERESERVATION_NOT_AVAILABLE;
-		return false;
-	}
-
 	cout << CREATERESERVATION_INP_CONFIRM(room.room_number);
 
 	if (YesNoCheck())
@@ -266,6 +260,13 @@ bool MakeReservation(string &path, vector <Room> &rooms, vector <Reservation> &r
 		{
 			return false;
 		}
+
+		if (!IsRoomFree(reservation.id, reservation.day, reservation.month, reservation.year, reservations))
+		{
+			cout << CREATERESERVATION_NOT_AVAILABLE << endl;
+			return false;
+		}
+
 		reservations.push_back(reservation);
 		// Pokud zbyde èas, pøidat do zvláštní funkce
 		if (!AppendRecordToReservationFile(path, reservation))

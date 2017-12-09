@@ -8,6 +8,57 @@
 #include <iomanip>
 #include <sstream>
 
+
+///
+///
+
+bool ExportToHtml(vector<Room> &rooms)
+{
+	string path;
+	cout << HTMLEXPORT_CONFIRM;
+
+	if (YesNoCheck())
+	{
+		ofstream out;
+		out.open("out.html");
+
+		if (!out.is_open())
+		{
+			cout << ERROR_FILE_NOT_FOUND(path);
+			return false;
+		}
+
+		GenerateHTMLHeader(out);
+		out << "<h1>Seznam volnych mistnosti</h1>" << endl;
+		out << "<table><tr><th>ID</th><th>Patro</th><th>Mistnost</th><th>Kapacita sedadel</th><th>Cena rezervace</th></tr>" << endl;
+
+		for (unsigned int i = 0; i < rooms.size(); i++)
+		{
+			stringstream curr;
+			curr << rooms[i].reservation_price << " " << CURRENCY;
+			out << "<tr>" << endl
+				<< "<td>" << rooms[i].id << "</td>"
+				<< "<td>" << rooms[i].floor << "</td>"
+				<< "<td>" << rooms[i].room_number << "</td>"
+				<< "<td>" << rooms[i].seat_capacity << "</td>"
+				<< "<td>" << curr.str() << "</td>"
+				<< "</tr>" << endl;
+		}
+		out << "</table>" << endl;
+		GenerateHTMLFooter(out);
+	}
+	cout << endl;
+	return true;
+}
+
+///
+/// @brief Funkce, ktera prida obsah struktury Room na konec souboru
+/// @param	path			Cesta k souboru, ktery obsahuje seznam mistnosti
+/// @param	room			Struktura Room
+/// @retval	true			Funkce vraci hodnotu true, jestlize se podari obsah struktury na konec souboru pridat
+/// @retval false			Funkce vraci hodnotu false, jestlize pri ukladani obsahu struktury na konec souboru nastane chyba
+///
+
 bool AppendRecordToRoomFile(string &path, Room &room)
 {
 	ofstream out;
@@ -15,6 +66,7 @@ bool AppendRecordToRoomFile(string &path, Room &room)
 
 	if (!out.is_open())
 	{
+		cout << ERROR_FILE_NOT_FOUND(path);
 		return false;
 	}	
 
@@ -29,25 +81,38 @@ bool AppendRecordToRoomFile(string &path, Room &room)
 	return true;
 }
 
+///
+/// @brief Funkce, ktera zjisti, jestli mistnost vyhovuje vstupnim parametrum
+/// @param	room				Struktura Room
+/// @retval true			Funkce vraci hodnotu true, jestlize mistnost vyhovuje vstupnim parametrum
+/// @retval false			Funkce vraci hodnotu false, jestlize mistnost obsahuje neplatne parametry
+///
+
 bool IsRoomValid(Room room)
 {
-	if (room.id < ROOM_ID_MIN_LENGTH || room.id > ROOM_ID_MAX_LENGTH)
+	if (room.id < ROOM_ID_MIN_VALUE || room.id > ROOM_ID_MAX_VALUE)
 		return false;
 
-	if (room.floor < ROOM_FLOOR_MIN_LENGTH || room.floor > ROOM_FLOOR_MAX_LENGTH)
+	if (room.floor < ROOM_FLOOR_MIN_VALUE || room.floor > ROOM_FLOOR_MAX_VALUE)
 		return false;
 
-	if (room.room_number < ROOM_ROOMNUM_MIN_LENGTH || room.room_number > ROOM_ROOMNUM_MAX_LENGTH)
+	if (room.room_number < ROOM_ROOMNUM_MIN_VALUE || room.room_number > ROOM_ROOMNUM_MAX_VALUE)
 		return false;
 
-	if (room.seat_capacity < ROOM_SEATS_MIN_LENGTH || room.seat_capacity > ROOM_SEATS_MAX_LENGTH)
+	if (room.seat_capacity < ROOM_SEATS_MIN_VALUE || room.seat_capacity > ROOM_SEATS_MAX_VALUE)
 		return false;
 
-	if (room.reservation_price < ROOM_PRICE_MIN_LENGTH || room.reservation_price > ROOM_PRICE_MAX_LENGTH)
+	if (room.reservation_price < ROOM_PRICE_MIN_VALUE || room.reservation_price > ROOM_PRICE_MAX_VALUE)
 		return false;
 
 	return true;
 }
+
+///
+/// @brief Funkce, ktera prevede data ze stringu do struktury Room
+/// @param	row		String, ktery obsahuje radek v CSV souboru, ktery se ma prevest
+/// @return	Funkce vraci strukturu Room s prevedenymi daty
+///
 
 Room ParserRoom(string row)
 {
@@ -78,55 +143,62 @@ bool selectFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservatio
 	Reservation reservation;
 	int input;
 	string fulldate;
-	auto filteredRooms = getFreeRooms(rooms_data, reservation_data);
+	vector<Room> filteredRooms;
 	
 	switch (ShowSubMenu())
 	{
-	case 'q':
+	case SUBMENU_LEAVE:
 		break;
-	case 'a':
-		while (true)
+	case SUBMENU_FILTERONDATE:
+		do
 		{
 			cout << CREATERESERVATION_INP_DATE << endl;
-
 			cin.ignore();
 			getline(cin, fulldate);
 
 			sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
-
-			if (!IsDateValid(reservation.day, reservation.month, reservation.year))
-			{
-				cout << INP_DATE_INVALID << endl;
-				continue;
-			}
-			return true;
-		}
+		} while (!IsDateValid(reservation.day, reservation.month, reservation.year));
 
 		filteredRooms = getRoomsOnDate(reservation.day, reservation.month, reservation.year, rooms_data, reservation_data);
 		PrintRooms(filteredRooms);
+		ExportToHtml(filteredRooms);
 		return true;
-	case 'b':
+	case SUBMENU_FILTERONPRICE:
 		cout << SELECTFREEROOMS_PRICE_LOW_INP;
-		GET_INPUT(input, ADDROOM_INP_PRICE_ERR(INT_MAX), SELECTFREEROOMS_PRICE_LOW_INP);
+		GET_INPUT(input, ADDROOM_INP_PRICE_ERR(ROOM_PRICE_MAX_VALUE), SELECTFREEROOMS_PRICE_LOW_INP);
 
-		filteredRooms = getRoomsOnPrice(input, filteredRooms);
+		filteredRooms = getRoomsOnPrice(input, rooms_data);
 		PrintRooms(filteredRooms);
+		ExportToHtml(filteredRooms);
 		return true;
-	case 'c':
-		cout << SELECTFREEROOMS_SEATS_INP;
-		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(INT_MAX), SELECTFREEROOMS_SEATS_INP);
+	case SUBMENU_FILTERONSEATS:
+		cout << SELECTFREEROOMS_SEATS_INP_ON;
+		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(ROOM_SEATS_MAX_VALUE), SELECTFREEROOMS_SEATS_INP_ON);
 
-		filteredRooms = getRoomsOnSeats(input, filteredRooms);
+		filteredRooms = getRoomsOnSeats(input, rooms_data);
 		PrintRooms(filteredRooms);
+		ExportToHtml(filteredRooms);
 		return true;
-	case 'd':
+	case SUBMENU_FILTEROVERSEATS:
+		cout << SELECTFREEROOMS_SEATS_INP_OVER;
+		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(ROOM_SEATS_MAX_VALUE), SELECTFREEROOMS_SEATS_INP_OVER);
+
+		filteredRooms = getRoomsOverSeats(input, rooms_data);
+		PrintRooms(filteredRooms);
+		ExportToHtml(filteredRooms);
+		return true;
+	case SUBMENU_FILTERONFLOOR:
 		cout << SELECTFREEROOMS_FLOOR_INP;
-		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), SELECTFREEROOMS_FLOOR_INP);
+		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(ROOM_FLOOR_MIN_VALUE, ROOM_FLOOR_MAX_VALUE), SELECTFREEROOMS_FLOOR_INP);
 
-		filteredRooms = getRoomsOnFloor(input, filteredRooms);
-		return true;
-	case 'e':
+		filteredRooms = getRoomsOnFloor(input, rooms_data);
 		PrintRooms(filteredRooms);
+		ExportToHtml(filteredRooms);
+		return true;
+	case SUBMENU_FILTER:
+		filteredRooms = getFreeRooms(rooms_data, reservation_data);
+		PrintRooms(filteredRooms);
+		ExportToHtml(filteredRooms);
 		return true;
 	}
 	return false;
@@ -134,8 +206,8 @@ bool selectFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservatio
 
 void PrintRooms(vector <Room> &data)
 {
-	cout << "+" << setw(62) << setfill('-') << "+" << endl;
-	cout << "| Mistnost | Patro | Kapacita sedadel | Cena za den rezervace |" << endl;
+	GetTableRoomSeparator(62);
+	cout << "| " << TABLECELL_ROOM << " | " << TABLECELL_FLOOR << " | " << TABLECELL_SEATS << " | " << TABLECELL_RESERVEDATE << " |" << endl;
 	cout << left << setw(11) << setfill('-') << "+"
 		<< left << setw(8) << setfill('-') << "+"
 		<< left << setw(19) << setfill('-') << "+"
@@ -150,84 +222,154 @@ void PrintRooms(vector <Room> &data)
 			<< left << "| " << setw(22) << setfill(' ') << data[i].reservation_price << "|" << endl;
 	}
 
-	cout << "+" << setw(62) << setfill('-') << right << "+" << endl;
+	GetTableRoomSeparator(62);
 }
 
-vector<Room> getRoomsOnDate(short day, short month, short year, vector <Room> &rooms_data, vector <Reservation> &reservation_data)
+///
+/// @brief Funkce, ktera vrati vektor se vsemi volnymi mistnostmi na zaklade zadaneho data
+/// @param	day				Den na ktery ma byt mistnost volna
+/// @param	month			Mesic na ktery ma byt mistnost volna
+/// @param	year			Rok na ktery ma byt mistnost volna
+/// @param	rooms			Vektor s ulozenymi mistnostmi
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @return Funkce vraci vektor se strukturou Room se vsemi volnymi mistnostmi na zaklade zadaneho data
+///
+
+vector<Room> getRoomsOnDate(short day, short month, short year, vector <Room> &rooms, vector <Reservation> &reservations)
 {
 	vector<Room> free_rooms;
 
-	for (unsigned int i = 0; i < rooms_data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (IsRoomFree(rooms_data[i].id, day, month, year, rooms_data, reservation_data))
+		if (IsRoomFree(rooms[i].id, day, month, year, reservations))
 		{
-			free_rooms.push_back(rooms_data.at(i));
+			free_rooms.push_back(rooms.at(i));
 		}
 	}
 	return free_rooms;
 }
 
-vector<Room> getRoomsOnSeats(int seats, vector <Room> &data)
+///
+/// @brief Funkce, ktera vrati vektor s mistnostmi od zadane kapacity sedadel
+/// @param	seats	Kapacita sedadel, od ktere se maji mistnosti zapsat do vektoru
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @return Funkce vraci vektor se strukturou Room se vsemi mistnostmi od zadane kapacity sedadel
+///
+
+vector<Room> getRoomsOverSeats(int seats, vector <Room> &rooms)
 {
 	vector<Room> free_rooms;
 
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (data[i].seat_capacity >= seats)
+		if (rooms[i].seat_capacity >= seats)
 		{
-			free_rooms = data;
+			free_rooms.push_back(rooms.at(i));
 		}
 	}
 	return free_rooms;
 }
 
-vector<Room> getRoomsOnPrice(int price, vector <Room> &data)
+///
+/// @brief Funkce, ktera vrati vektor s mistnostmi do zadane kapacity sedadel
+/// @param	seats	Kapacita sedadel, do ktere se maji mistnosti zapsat do vektoru
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @return Funkce vraci vektor se strukturou Room se vsemi mistnostmi do zadane kapacity sedadel
+///
+
+vector<Room> getRoomsOnSeats(int seats, vector <Room> &rooms)
 {
 	vector<Room> free_rooms;
-	for (unsigned int i = 0; i < data.size(); i++)
+
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (data[i].reservation_price <= price)
+		if (rooms[i].seat_capacity <= seats)
 		{
-			free_rooms = data;
+			free_rooms.push_back(rooms.at(i));
 		}
 	}
 	return free_rooms;
 }
 
-vector<Room> getRoomsOnFloor(short floor, vector <Room> &data)
+///
+/// @brief Funkce, ktera vrati vektor s mistnostmi do zadane ceny
+/// @param	price	Cena, do ktere se maji mistnosti zapsat do vektoru
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @return Funkce vraci vektor se strukturou Room se vsemi mistnostmi do zadane ceny
+///
+
+vector<Room> getRoomsOnPrice(int price, vector <Room> &rooms)
 {
 	vector<Room> free_rooms;
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (data[i].floor == floor)
+		if (rooms[i].reservation_price <= price)
 		{
-			free_rooms = data;
+			free_rooms.push_back(rooms.at(i));
 		}
 	}
 	return free_rooms;
 }
 
-vector<Room> getFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservation_data)
+///
+/// @brief Funkce, ktera vrati vektor s mistnostmi na zaklade zadaneho patra
+/// @param	floor	Patro, na kterem se dane mistnosti nachazeji			
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @return Funkce vraci vektor se strukturou Room se vsemi mistnostmi na danem patre
+///
+
+vector<Room> getRoomsOnFloor(short floor, vector <Room> &rooms)
 {
 	vector<Room> free_rooms;
-	for (unsigned int i = 0; i < rooms_data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (IsRoomFree(rooms_data[i].id, reservation_data))
+		if (rooms[i].floor == floor)
 		{
-			free_rooms.push_back(rooms_data.at(i));
+			free_rooms.push_back(rooms.at(i));
 		}
 	}
 	return free_rooms;
 }
 
-bool IsRoomFree(int room_id, short day, short month, short year, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
+///
+/// @brief Funkce, ktera vrati vektor se vsemi nezarezerovanymi mistnostmi
+/// @param	rooms			Vektor s ulozenymi mistnostmi
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @return Funkce vraci vektor se strukturou Room se vsemi nezarezervovanymi mistnostmi
+///
+
+vector<Room> getFreeRooms(vector <Room> &rooms, vector <Reservation> &reservations)
 {
-	for (unsigned int i = 0; i < reservations_data.size(); i++)
+	vector<Room> free_rooms;
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (reservations_data[i].id == room_id &&
-			reservations_data[i].day == day &&
-			reservations_data[i].month == month &&
-			reservations_data[i].year == year)
+		if (IsRoomFree(rooms[i].id, reservations))
+		{
+			free_rooms.push_back(rooms.at(i));
+		}
+	}
+	return free_rooms;
+}
+
+///
+/// @brief Funkce, ktera zjisti, jestli je mistnost volna na zaklade ID mistnosti a data rezervace
+/// @param	room_id			ID mistnosti u ktere se ma zjistit, jestli je mistnost volna
+/// @param	day				Den rezervace mistnosti
+/// @param	month			Mesic rezervace mistnosti
+/// @param	year			Rok rezervace mistnosti
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @retval	true			Funkce vraci hodnotu true, jestlize je dana mistnost volna
+/// @retval false			Funkce vraci hodnotu false jestlize je dana mistnost obsazena
+///
+
+bool IsRoomFree(int room_id, short day, short month, short year, vector <Reservation> &reservations)
+{
+	for (unsigned int i = 0; i < reservations.size(); i++)
+	{
+		if (reservations[i].id == room_id &&
+			reservations[i].day == day &&
+			reservations[i].month == month &&
+			reservations[i].year == year)
 		{
 			return false;
 		}
@@ -235,11 +377,19 @@ bool IsRoomFree(int room_id, short day, short month, short year, vector <Room> &
 	return true;
 }
 
-bool IsRoomFree(int room_id, vector <Reservation> &reservation_data)
+///
+/// @brief Funkce, ktera zjisti, jestli je mistnost volna na zaklade ID mistnosti
+/// @param	room_id			ID mistnosti u ktere se ma zjistit, jestli je mistnost volna
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @retval	true			Funkce vraci hodnotu true, jestlize je dana mistnost volna
+/// @retval false			Funkce vraci hodnotu false jestlize je dana mistnost obsazena
+///
+
+bool IsRoomFree(int room_id, vector <Reservation> &reservations)
 {
-	for (unsigned int i = 0; i < reservation_data.size(); i++)
+	for (unsigned int i = 0; i < reservations.size(); i++)
 	{
-		if (reservation_data[i].id == room_id)
+		if (reservations[i].id == room_id)
 		{
 			return false;
 		}
@@ -247,23 +397,37 @@ bool IsRoomFree(int room_id, vector <Reservation> &reservation_data)
 	return true;
 }
 
-int FindRoomID(int room, vector <Room> &data)
+///
+/// @brief Funkce, ktera najde ID mistnosti na zaklade cisla mistnosti
+/// @param	room	Cislo mistnosti u ktere se ma cislo mistnosti najit
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @return Funkce vraci ID mistnosti. Pokud ID nenalezne, vrati cislo -1.
+///
+
+int FindRoomID(int room, vector <Room> &rooms)
 {
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (data[i].room_number == room)
+		if (rooms[i].room_number == room)
 		{
-			return data[i].id;
+			return rooms[i].id;
 		}
 	}
 	return -1;
 }
 
-int FindRoomIndex(int room, vector <Room> &data)
+///
+/// @brief Funkce, ktera najde pozici mistnosti ve vektoru Room na zaklade cisla mistnosti
+/// @param	room	Cislo mistnosti u ktere se ma pozice najit
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @return Funkce vraci index pozice mistnosti ve vektoru. Pokud pozici nenalezne, vrati cislo -1.
+///
+
+int FindRoomIndex(int room, vector <Room> &rooms)
 {
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (data[i].room_number == room)
+		if (rooms[i].room_number == room)
 		{
 			return i;
 		}
@@ -271,19 +435,29 @@ int FindRoomIndex(int room, vector <Room> &data)
 	return -1;
 }
 
-bool RemoveRoom(string &rooms_path, string &reservations_path, vector <Room> &rooms_data, vector <Reservation> &reservations_data)
+///
+/// @brief Funkce, ktera odstrani mistnost
+/// @param	rooms_path			Cesta k souboru, ktery obsahuje seznam mistnosti
+/// @param	reservations_path	Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	rooms				Vektor s ulozenymi mistnostmi
+/// @param	reservations		Vektor s ulozenymi rezervacemi
+/// @retval	true				Funkce vraci hodnotu true, jestlize se mistnost podari uspesne odstranit
+/// @retval false				Funkce vraci hodnotu false s chybovou hlaskou, ktera definuje proc se mistnost nepodarilo odstranit
+///
+
+bool RemoveRoom(string &rooms_path, string &reservations_path, vector <Room> &rooms, vector <Reservation> &reservations)
 {
 	int index;
 	int room_id;
 	int remove_what;
 
-	PrintRoomsTable(rooms_data);
+	PrintRoomsTable(rooms);
 
 	cout << REMOVEROOM_INPUT;
-	GET_INPUT(remove_what, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_LENGTH, ROOM_ROOMNUM_MAX_LENGTH), REMOVEROOM_INPUT);
+	GET_INPUT(remove_what, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), REMOVEROOM_INPUT);
 
-	index = FindRoomIndex(remove_what, rooms_data);
-	room_id = FindRoomID(remove_what, rooms_data);
+	index = FindRoomIndex(remove_what, rooms);
+	room_id = FindRoomID(remove_what, rooms);
 
 	if (index == -1)
 	{
@@ -291,26 +465,36 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <Room> &ro
 		return false;
 	}
 
-	rooms_data.erase(rooms_data.begin() + index);
-	
-	for (unsigned int i = 0; i < reservations_data.size(); i++)
+	if (!CheckRoomsIntegrity(rooms_path, rooms))
 	{
-		if (reservations_data[i].id == room_id)
+		return false;
+	}
+
+	if (!CheckReservationsIntegrity(reservations_path, reservations))
+	{
+		return false;
+	}
+
+	rooms.erase(rooms.begin() + index);
+	
+	for (unsigned int i = 0; i < reservations.size(); i++)
+	{
+		if (reservations[i].id == room_id)
 		{
-			reservations_data.erase(reservations_data.begin() + i);
+			reservations.erase(reservations.begin() + i);
 		}
 	}
 	
-	SaveRoomsStructure(rooms_path, rooms_data);
-	SaveReservationsStructure(reservations_path, reservations_data);
+	SaveRoomsStructure(rooms_path, rooms);
+	SaveReservationsStructure(reservations_path, reservations);
 
 	return true;
 }
 
 void PrintRoomsTable(vector <Room> &data)
 {
-	cout << "+" << setw(71) << setfill('-') << "+" << endl;
-	cout << "|   ID   | Patro | Mistnost | Kapacita sedadel | Cena za den rezervace |" << endl;
+	GetTableRoomSeparator(71);
+	cout << "|   " << TABLECELL_ID << "   | " << TABLECELL_FLOOR << " | " << TABLECELL_ROOM << " | " << TABLECELL_SEATS << " | " << TABLECELL_PRICE << " |" << endl;
 	cout << left << setw(9) << setfill('-') << "+"
 		<< left << setw(8) << setfill('-') << "+"
 		<< left << setw(11) << setfill('-') << "+"
@@ -320,17 +504,27 @@ void PrintRoomsTable(vector <Room> &data)
 
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
+		stringstream curr;
+		curr << data[i].reservation_price << " " << CURRENCY;
 		cout << left << "| " << setw(7) << setfill(' ') << data[i].id
 			<< left << "| " << setw(6) << setfill(' ') << data[i].floor
 			<< left << "| " << setw(9) << setfill(' ') << data[i].room_number
 			<< left << "| " << setw(17) << setfill(' ') << data[i].seat_capacity
-			<< left << "| " << setw(22) << setfill(' ') << data[i].reservation_price << "|" << endl;
+			<< right << "| " << setw(21) << setfill(' ') << curr.str() << " |" << endl;
 	}
 
-	cout << "+" << setw(71) << setfill('-') << right << "+" << endl;
+	GetTableRoomSeparator(71);
 }
 
-bool SaveRoomsStructure(string &path, vector <Room> &data)
+///
+/// @brief Funkce, ktera ulozi obsah vektoru do CSV souboru se seznamem mistnosti
+/// @param	path			Cesta k souboru, ktery obsahuje seznam mistnosti
+/// @param	rooms			Vektor s ulozenymi mistnostmi
+/// @retval true			Funkce vraci hodnotu true, jestlize ulozeni souboru probehlo uspesne
+/// @retval false			Funkce vraci hodnotu false, jestlize ulozeni souboru skoncilo chybou
+///
+
+bool SaveRoomsStructure(string &path, vector <Room> &rooms)
 {
 	fstream file;
 	string s;
@@ -348,13 +542,13 @@ bool SaveRoomsStructure(string &path, vector <Room> &data)
 	file.open(path, ios::out);
 	file << s << endl;
 
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		file << data[i].id << ";"
-			<< data[i].floor << ";"
-			<< data[i].room_number << ";"
-			<< data[i].seat_capacity << ";"
-			<< data[i].reservation_price << endl;
+		file << rooms[i].id << ";"
+			<< rooms[i].floor << ";"
+			<< rooms[i].room_number << ";"
+			<< rooms[i].seat_capacity << ";"
+			<< rooms[i].reservation_price << endl;
 	}
 
 	file.close();
@@ -368,12 +562,6 @@ bool AddNewRoom(string &path, vector <Room> &data)
 
 	cout << ADDROOM_INPUT;
 	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), ADDROOM_INPUT);
-
-	if (RoomExists(room.room_number, data))
-	{
-		cout << ADDROOM_ROOMNUM_EXISTS(room.room_number) << endl;
-		return false;
-	}
 
 	cout << ADDROOM_INP_FLOOR;
 	GET_INPUT(room.floor, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), ADDROOM_INP_FLOOR);
@@ -395,6 +583,12 @@ bool AddNewRoom(string &path, vector <Room> &data)
 	{
 		if (!CheckRoomsIntegrity(path, data))
 		{
+			return false;
+		}
+
+		if (RoomExists(room.room_number, data))
+		{
+			cout << ADDROOM_ROOMNUM_EXISTS(room.room_number) << endl;
 			return false;
 		}
 
@@ -516,16 +710,23 @@ bool CheckRoomsIntegrity(string &path, vector <Room> &data)
 		{
 			SaveRoomsStructure(path, data);
 		}
-		return true;
 	}
-	return false;
+	return true;
 }
 
-bool RoomExists(int room, vector <Room> &data)
+///
+/// @brief Funkce, ktera zjisti jestli existuje mistnost ve vektoru Room
+/// @param	room	Cislo mistnosti, ktera se ma zjistit, jestli existuje
+/// @param	rooms	Vektor s mistnostmi
+/// @retval true	Funkce vraci hodnotu true, jestlize mistnost ve vektoru Room existuje
+/// @retval false	Funkce vraci hodnotu false, jestlize mistnost nebyla ve vektoru Room nalezena
+///
+
+bool RoomExists(int room, vector <Room> &rooms)
 {
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (data[i].room_number == room)
+		if (rooms[i].room_number == room)
 		{
 			return true;
 		}
@@ -533,11 +734,19 @@ bool RoomExists(int room, vector <Room> &data)
 	return false;
 }
 
-bool RoomIdExists(int id, vector <Room> &data)
+///
+/// @brief Funkce, ktera zjisti jestli existuje ve vektoru ID mistnosti
+/// @param	id		ID mistnosti, ktera se ma zjistit, jestli existuje
+/// @param	rooms	Vektor s mistnostmi
+/// @retval true	Funkce vraci hodnotu true, jestlize ID mistnosti ve vektoru Room existuje
+/// @retval false	Funkce vraci hodnotu false, jestlize ID mistnosti nebylo ve vektoru Room nalezeno
+///
+
+bool RoomIdExists(int id, vector <Room> &rooms)
 {
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		if (data[i].id == id)
+		if (rooms[i].id == id)
 		{
 			return true;
 		}
@@ -545,7 +754,15 @@ bool RoomIdExists(int id, vector <Room> &data)
 	return false;
 }
 
-bool FillRoomsStructure(string &path, vector <Room> &data)
+///
+/// @brief	Funkce pro naplneni struktury Room z CSV souboru
+/// @param	path	Cesta k souboru, ktery obsahuje seznam mistnosti
+/// @param	rooms	Vektor s mistnostmi, ktery se ma naplnit
+/// @retval	true	Funkce vraci hodnotu true, jestlize struktura byla uspesne naplnena
+/// @retval	false	Funkce vraci hodnotu false, jestlize nastal problem pri nahravani dat ze souboru
+///
+
+bool FillRoomsStructure(string &path, vector <Room> &rooms)
 {
 	ifstream rooms_file;
 	Room room;
@@ -575,12 +792,12 @@ bool FillRoomsStructure(string &path, vector <Room> &data)
 			return false;
 		}
 
-		if (RoomIdExists(room.id, data) || RoomExists(room.room_number, data))
+		if (RoomIdExists(room.id, rooms) || RoomExists(room.room_number, rooms))
 		{
 			return false;
 		}
 
-		data.push_back(room);
+		rooms.push_back(room);
 	}
 	rooms_file.close();
 	return true;

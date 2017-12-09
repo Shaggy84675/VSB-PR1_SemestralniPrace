@@ -31,7 +31,7 @@
 #define ADDROOM_INP_PRICE								"Zadejte cenu za den rezervace mistnosti: "
 #define ADDROOM_INP_PRICE_ERR(inpmax)					"Zadana chybne cena mistnosti \nCena mistnosti musi byt kladne cele cislo do " << inpmax 
 
-#define ADDROOM_INP_CONFIRM								"Prejete si nasledujici mistnost pridat do databaze? (A/N) "
+#define ADDROOM_INP_CONFIRM								"Prejete si nasledujici mistnost pridat do databaze? (A/N): "
 #define ADDROOM_CANCELED								"Pridani mistnosti bylo zruseno"
 #define ADDROOM_SUCCESS									"Mistnost byla uspesne pridana do seznamu mistnosti"
 
@@ -43,13 +43,13 @@
 #define CREATERESERVATION_INP_ROOMNUM					"Zadejte cislo mistnosti, kterou si prejete rezervovat: "
 #define CREATERESERVATION_NOT_AVAILABLE					"Zadana mistnost je jiz bohuzel na dany den obsazena"
 #define CREATERESERVATION_INP_DATE						"Zadejte datum rezervace ve formatu (DD.MM.YYYY) nebo (D.M.YYYY): "
-#define CREATERESERVATION_INP_CONFIRM(room)				"Prejete si mistnost " << room << " rezervovat? (A/N) "
+#define CREATERESERVATION_INP_CONFIRM(room)				"Prejete si mistnost " << room << " rezervovat? (A/N): "
 #define CREATERESERVATION_SUCCESS						"Mistnost byla uspesne zarezervovana"
 #define CREATERESERVATION_CANCELED						"Rezervace mistnosti bylo zruseno"
 
 #define CANCELRESERVATION_INP_ROOMNUM					"Zadejte cislo mistnosti, pro kterou si prejete zrusit rezervaci: "
 #define CANCELRESERVATION_INP_DATE						"Zadejte datum zruseni rezervace ve formatu (DD.MM.YYYY) nebo (D.M.YYYY): "
-#define CANCELRESERVATION_INP_CONFIRM(room)				"Prejete si zrusit rezervaci mistnosti " << room << " ? (A/N) "
+#define CANCELRESERVATION_INP_CONFIRM(room)				"Prejete si zrusit rezervaci mistnosti " << room << "? (A/N): "
 #define CANCELRESERVATION_SUCCESS						"Rezervace mistnosti byla uspesne zrusena"
 #define CANCELRESERVATION_CANCELED						"Zruseni rezervace mistnosti bylo zruseno"
 
@@ -66,7 +66,8 @@
 #define SELECTFREEROOMS_FLOOR_INP						"Zadejte patro na kterem si prejete volne mistnosti vyhledat: "
 #define SELECTFREEROOMS_DATE_INP						"Zadejte datum ve formatu (DD.MM.YYYY) nebo (D.M.YYYY) na ktere si prejete volne mistnosti vyhledat: "
 #define SELECTFREEROOMS_PRICE_LOW_INP					"Zadejte castku do ktere si prejete volne mistnosti vyhledat: "
-#define SELECTFREEROOMS_SEATS_INP						"Zadejte pocet sedadel nad ktere si prejete volne mistnosti vyhledat: "
+#define SELECTFREEROOMS_SEATS_INP_ON					"Zadejte pocet sedadel do kterych si prejete volne mistnosti vyhledat: "
+#define SELECTFREEROOMS_SEATS_INP_OVER					"Zadejte pocet sedadel nad ktere si prejete volne mistnosti vyhledat: "
 
 #define	TABLECELL_ID									"ID"
 #define TABLECELL_RESERVEDATE							"Datum rezervace"
@@ -74,6 +75,8 @@
 #define TABLECELL_FLOOR									"Patro"
 #define TABLECELL_SEATS									"Kapacita sedadel"
 #define TABLECELL_PRICE									"Cena rezervace"
+
+#define HTMLEXPORT_CONFIRM								"Prejete si nasledujici tabulku vyexportovat do HTML? (A/N): "
 
 void WelcomeMessage();
 void PrintMainMenu();
