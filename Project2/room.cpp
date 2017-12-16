@@ -17,6 +17,48 @@
 
 
 ///
+/// @brief Funkce, ktera porovnava dve struktury a zjistuje, zda jsou v techto strukturach stejna data
+/// @param room_old			Struktura s puvodnimi daty mistnosti
+/// @param room_new			Struktura s novymi daty mistnosti
+/// @retval true			Funkce vraci hodnotu true, jestlize data v porovnanych strukturach jsou stejna
+/// @retval false			Funkce vraci hodnotu false, jestlize data v porovnanych strukturach jsou odlisna
+///
+
+bool RoomComparator(Room room_old, Room room_new)
+{
+	if (room_old.id != room_new.id)
+	{
+		return false;
+	}
+
+	if (room_old.floor != room_new.floor)
+	{
+		return false;
+	}
+
+	if (room_old.room_number != room_new.room_number)
+	{
+		return false;
+	}
+
+	if (room_old.seat_capacity != room_new.seat_capacity)
+	{
+		return false;
+	}
+
+	if (room_old.reservation_price != room_new.reservation_price)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+///
+/// @brief Funkce, ktera vytvori HTML soubor s danymi mistnostmi
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @retval true	Funkce vraci hodnotu true, jestlize se podari vytvorit soubor s HTML obsahem
+/// @retval false	Funkce vraci hodnotu false, pri vytvareni HTML souboru nastane chyba
 ///
 
 bool ExportToHtml(vector<Room> &rooms)
@@ -27,17 +69,30 @@ bool ExportToHtml(vector<Room> &rooms)
 	if (YesNoCheck())
 	{
 		ofstream out;
-		out.open("out.html");
+
+		cout << FILE_INP;
+		cin.ignore(INT_MAX, '\n');
+		getline(cin, path);
+
+		if (cin.fail())
+		{
+			cout << FILE_INP_ERR << endl;
+			return false;
+		}
+
+		path += ".html";
+		out.open(path);
 
 		if (!out.is_open())
 		{
-			cout << ERROR_FILE_NOT_FOUND(path);
+			cout << ERROR_FILE_NOT_FOUND(path) << endl;
 			return false;
 		}
 
 		GenerateHTMLHeader(out);
 		out << "<h1>Seznam volnych mistnosti</h1>" << endl;
-		out << "<table><tr><th>ID</th><th>Patro</th><th>Mistnost</th><th>Kapacita sedadel</th><th>Cena rezervace</th></tr>" << endl;
+		out << "<table><tr><th>" << TABLECELL_ID << "</th><th>" << TABLECELL_FLOOR << "</th><th>" << TABLECELL_ROOM << "</th><th>"
+			<< TABLECELL_SEATS << "</th><th>" << TABLECELL_PRICE << "</th></tr>" << endl;
 
 		for (unsigned int i = 0; i < rooms.size(); i++)
 		{
@@ -90,9 +145,9 @@ bool AppendRecordToRoomFile(string &path, Room &room)
 
 ///
 /// @brief Funkce, ktera zjisti, jestli mistnost vyhovuje vstupnim parametrum
-/// @param	room				Struktura Room
-/// @retval true			Funkce vraci hodnotu true, jestlize mistnost vyhovuje vstupnim parametrum
-/// @retval false			Funkce vraci hodnotu false, jestlize mistnost obsahuje neplatne parametry
+/// @param	room	Struktura Room
+/// @retval true	Funkce vraci hodnotu true, jestlize mistnost vyhovuje vstupnim parametrum
+/// @retval false	Funkce vraci hodnotu false, jestlize mistnost obsahuje neplatne parametry
 ///
 
 bool IsRoomValid(Room room)
@@ -145,91 +200,107 @@ Room ParserRoom(string row)
 	return room;	
 }
 
-bool selectFreeRooms(vector <Room> &rooms_data, vector <Reservation> &reservation_data)
+///
+/// @brief Funkce, ktera provede dane vyhledavani na zaklaade moznosti z funkce ShowSubMenu()
+/// @param	rooms			Vektor obsahujici seznam mistnosti
+/// @param	reservations	Vektor obsahujici seznam rezervaci
+/// @retval true			Funkce vraci hodnotu true, jestlize se uspesne provede prikaz ze switche
+/// @retval	false			Funkce vraci hodnotu false, jestlize se nenalezne moznost pro switch
+///
+
+bool SubMenuSelection(vector <Room> &rooms, vector <Reservation> &reservations)
 {
 	Reservation reservation;
 	int input;
-	string fulldate;
 	vector<Room> filteredRooms;
-	
+	string fulldate;
+
 	switch (ShowSubMenu())
 	{
 	case SUBMENU_LEAVE:
 		break;
 	case SUBMENU_FILTERONDATE:
+		cin.ignore(INT_MAX, '\n');
 		do
 		{
 			cout << CREATERESERVATION_INP_DATE << endl;
-			cin.ignore();
 			getline(cin, fulldate);
 
 			sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
 		} while (!IsDateValid(reservation.day, reservation.month, reservation.year));
 
-		filteredRooms = getRoomsOnDate(reservation.day, reservation.month, reservation.year, rooms_data, reservation_data);
+		filteredRooms = getRoomsOnDate(reservation.day, reservation.month, reservation.year, rooms, reservations);
 		PrintRooms(filteredRooms);
 		ExportToHtml(filteredRooms);
 		return true;
 	case SUBMENU_FILTERONPRICE:
 		cout << SELECTFREEROOMS_PRICE_LOW_INP;
-		GET_INPUT(input, ADDROOM_INP_PRICE_ERR(ROOM_PRICE_MAX_VALUE), SELECTFREEROOMS_PRICE_LOW_INP);
+		GET_INPUT(input, ADDROOM_INP_PRICE_ERR(ROOM_PRICE_MAX_VALUE), SELECTFREEROOMS_PRICE_LOW_INP, ROOM_PRICE_MIN_VALUE, ROOM_PRICE_MAX_VALUE);
 
-		filteredRooms = getRoomsOnPrice(input, rooms_data);
+		filteredRooms = getRoomsOnPrice(input, rooms);
 		PrintRooms(filteredRooms);
 		ExportToHtml(filteredRooms);
 		return true;
 	case SUBMENU_FILTERONSEATS:
 		cout << SELECTFREEROOMS_SEATS_INP_ON;
-		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(ROOM_SEATS_MAX_VALUE), SELECTFREEROOMS_SEATS_INP_ON);
+		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(ROOM_SEATS_MAX_VALUE), SELECTFREEROOMS_SEATS_INP_ON, ROOM_SEATS_MIN_VALUE, ROOM_SEATS_MAX_VALUE);
 
-		filteredRooms = getRoomsOnSeats(input, rooms_data);
+		filteredRooms = getRoomsOnSeats(input, rooms);
 		PrintRooms(filteredRooms);
 		ExportToHtml(filteredRooms);
 		return true;
 	case SUBMENU_FILTEROVERSEATS:
 		cout << SELECTFREEROOMS_SEATS_INP_OVER;
-		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(ROOM_SEATS_MAX_VALUE), SELECTFREEROOMS_SEATS_INP_OVER);
+		GET_INPUT(input, ADDROOM_INP_SEATS_ERR(ROOM_SEATS_MAX_VALUE), SELECTFREEROOMS_SEATS_INP_OVER, ROOM_SEATS_MIN_VALUE, ROOM_SEATS_MAX_VALUE);
 
-		filteredRooms = getRoomsOverSeats(input, rooms_data);
+		filteredRooms = getRoomsOverSeats(input, rooms);
 		PrintRooms(filteredRooms);
 		ExportToHtml(filteredRooms);
 		return true;
 	case SUBMENU_FILTERONFLOOR:
 		cout << SELECTFREEROOMS_FLOOR_INP;
-		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(ROOM_FLOOR_MIN_VALUE, ROOM_FLOOR_MAX_VALUE), SELECTFREEROOMS_FLOOR_INP);
+		GET_INPUT(input, ADDROOM_INP_FLOOR_ERR(ROOM_FLOOR_MIN_VALUE, ROOM_FLOOR_MAX_VALUE), SELECTFREEROOMS_FLOOR_INP, ROOM_FLOOR_MIN_VALUE, ROOM_FLOOR_MAX_VALUE);
 
-		filteredRooms = getRoomsOnFloor(input, rooms_data);
+		filteredRooms = getRoomsOnFloor(input, rooms);
 		PrintRooms(filteredRooms);
 		ExportToHtml(filteredRooms);
 		return true;
 	case SUBMENU_FILTER:
-		filteredRooms = getFreeRooms(rooms_data, reservation_data);
+		filteredRooms = getFreeRooms(rooms, reservations);
 		PrintRooms(filteredRooms);
 		ExportToHtml(filteredRooms);
 		return true;
+	case SUBMENU_FILTERCLOSEST:
+		PrintReservationsTable(rooms, reservations);
+		ExportToHtml(rooms, reservations);
 	}
 	return false;
 }
 
-void PrintRooms(vector <Room> &data)
+///
+/// @brief Funkce, ktera vypise tabulku vsech mistnosti na zaklade daneho filtru ve vektoru Room
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+///
+
+void PrintRooms(vector <Room> &rooms)
 {
-	GetTableRoomSeparator(62);
-	cout << "| " << TABLECELL_ROOM << " | " << TABLECELL_FLOOR << " | " << TABLECELL_SEATS << " | " << TABLECELL_RESERVEDATE << " |" << endl;
+	GetTableSeparator(62);
+	cout << "| " << TABLECELL_ROOM << " | " << TABLECELL_FLOOR << " | " << TABLECELL_SEATS << " |    " << TABLECELL_RESERVEDATE << "    |" << endl;
 	cout << left << setw(11) << setfill('-') << "+"
 		<< left << setw(8) << setfill('-') << "+"
 		<< left << setw(19) << setfill('-') << "+"
 		<< left << setw(24) << setfill('-') << "+"
 		<< left << "+" << endl;
 
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
-		cout << left << "| " << setw(9) << setfill(' ') << data[i].room_number
-			<< left << "| " << setw(6) << setfill(' ') << data[i].floor
-			<< left << "| " << setw(17) << setfill(' ') << data[i].seat_capacity
-			<< left << "| " << setw(22) << setfill(' ') << data[i].reservation_price << "|" << endl;
+		cout << left << "| " << setw(9) << setfill(' ') << rooms[i].room_number
+			<< left << "| " << setw(6) << setfill(' ') << rooms[i].floor
+			<< left << "| " << setw(17) << setfill(' ') << rooms[i].seat_capacity
+			<< left << "| " << setw(22) << setfill(' ') << rooms[i].reservation_price << "|" << endl;
 	}
 
-	GetTableRoomSeparator(62);
+	GetTableSeparator(62);
 }
 
 ///
@@ -461,7 +532,7 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <Room> &ro
 	PrintRoomsTable(rooms);
 
 	cout << REMOVEROOM_INPUT;
-	GET_INPUT(remove_what, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), REMOVEROOM_INPUT);
+	GET_INPUT(remove_what, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), REMOVEROOM_INPUT, ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE);
 
 	index = FindRoomIndex(remove_what, rooms);
 	room_id = FindRoomID(remove_what, rooms);
@@ -472,63 +543,77 @@ bool RemoveRoom(string &rooms_path, string &reservations_path, vector <Room> &ro
 		return false;
 	}
 
-	if (!CheckRoomsIntegrity(rooms_path, rooms))
-	{
-		return false;
-	}
+	cout << REMOVEROOM_INP_CONFIRM(remove_what);
 
-	if (!CheckReservationsIntegrity(reservations_path, reservations))
+	if (YesNoCheck())
 	{
-		return false;
-	}
-
-	rooms.erase(rooms.begin() + index);
-	
-	for (unsigned int i = 0; i < reservations.size(); i++)
-	{
-		if (reservations[i].id == room_id)
+		if (!CheckRoomsIntegrity(rooms_path, rooms))
 		{
-			reservations.erase(reservations.begin() + i);
+			return false;
 		}
-	}
-	
-	SaveRoomsStructure(rooms_path, rooms);
-	SaveReservationsStructure(reservations_path, reservations);
 
+		if (!CheckReservationsIntegrity(reservations_path, reservations))
+		{
+			return false;
+		}
+
+		rooms.erase(rooms.begin() + index);
+
+		for (unsigned int i = 0; i < reservations.size(); i++)
+		{
+			if (reservations[i].id == room_id)
+			{
+				reservations.erase(reservations.begin() + i);
+			}
+		}
+
+		SaveRoomsStructure(rooms_path, rooms);
+		SaveReservationsStructure(reservations_path, reservations);
+	}
+	else
+	{
+		cout << REMOVEROOM_CANCELED << endl;
+		return false;
+	}
 	return true;
 }
 
-void PrintRoomsTable(vector <Room> &data)
+///
+/// @brief Funkce pro vypsani obsahu struktury Room z vektoru, ktery byl naplnen CSV souborem
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+///
+
+void PrintRoomsTable(vector <Room> &rooms)
 {
-	GetTableRoomSeparator(71);
-	cout << "|   " << TABLECELL_ID << "   | " << TABLECELL_FLOOR << " | " << TABLECELL_ROOM << " | " << TABLECELL_SEATS << " | " << TABLECELL_PRICE << " |" << endl;
+	GetTableSeparator(70);
+	cout << "|   " << TABLECELL_ID << "   | " << TABLECELL_FLOOR << " | " << TABLECELL_ROOM << " | " << TABLECELL_SEATS << " |    " << TABLECELL_PRICE << "    |" << endl;
 	cout << left << setw(9) << setfill('-') << "+"
 		<< left << setw(8) << setfill('-') << "+"
 		<< left << setw(11) << setfill('-') << "+"
 		<< left << setw(19) << setfill('-') << "+"
-		<< left << setw(24) << setfill('-') << "+"
+		<< left << setw(23) << setfill('-') << "+"
 		<< left << "+" << endl;
 
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
 		stringstream curr;
-		curr << data[i].reservation_price << " " << CURRENCY;
-		cout << left << "| " << setw(7) << setfill(' ') << data[i].id
-			<< left << "| " << setw(6) << setfill(' ') << data[i].floor
-			<< left << "| " << setw(9) << setfill(' ') << data[i].room_number
-			<< left << "| " << setw(17) << setfill(' ') << data[i].seat_capacity
-			<< right << "| " << setw(21) << setfill(' ') << curr.str() << " |" << endl;
+		curr << rooms[i].reservation_price << " " << CURRENCY;
+		cout << left << "| " << setw(7) << setfill(' ') << rooms[i].id
+			<< left << "| " << setw(6) << setfill(' ') << rooms[i].floor
+			<< left << "| " << setw(9) << setfill(' ') << rooms[i].room_number
+			<< left << "| " << setw(17) << setfill(' ') << rooms[i].seat_capacity
+			<< right << "| " << setw(20) << setfill(' ') << curr.str() << " |" << endl;
 	}
 
-	GetTableRoomSeparator(71);
+	GetTableSeparator(70);
 }
 
 ///
 /// @brief Funkce, ktera ulozi obsah vektoru do CSV souboru se seznamem mistnosti
-/// @param	path			Cesta k souboru, ktery obsahuje seznam mistnosti
-/// @param	rooms			Vektor s ulozenymi mistnostmi
-/// @retval true			Funkce vraci hodnotu true, jestlize ulozeni souboru probehlo uspesne
-/// @retval false			Funkce vraci hodnotu false, jestlize ulozeni souboru skoncilo chybou
+/// @param	path	Cesta k souboru, ktery obsahuje seznam mistnosti
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @retval true	Funkce vraci hodnotu true, jestlize ulozeni souboru probehlo uspesne
+/// @retval false	Funkce vraci hodnotu false, jestlize ulozeni souboru skoncilo chybou
 ///
 
 bool SaveRoomsStructure(string &path, vector <Room> &rooms)
@@ -563,44 +648,52 @@ bool SaveRoomsStructure(string &path, vector <Room> &rooms)
 	return true;
 }
 
-bool AddNewRoom(string &path, vector <Room> &data)
+///
+/// @brief Funkce, ktera prida novou mistnost
+/// @param	path	Cesta k souboru, ktery obsahuje seznam mistnosti
+/// @param	rooms	Vektor s ulozenymi mistnostmi
+/// @retval true	Funkce vraci hodnotu true, jestlize se novou mistnost podari pridat
+/// @retval false	Funkce vraci hodnotu false, jestlize nastane chyba pri pridavani mistnosti nebo uzivatel pridani mistnosti zrusil
+///
+
+bool AddNewRoom(string &path, vector <Room> &rooms)
 {
 	Room room;
 
 	cout << ADDROOM_INPUT;
-	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), ADDROOM_INPUT);
+	GET_INPUT(room.room_number, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), ADDROOM_INPUT, ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE);
 
 	cout << ADDROOM_INP_FLOOR;
-	GET_INPUT(room.floor, ADDROOM_INP_FLOOR_ERR(SHRT_MIN, SHRT_MAX), ADDROOM_INP_FLOOR);
+	GET_INPUT(room.floor, ADDROOM_INP_FLOOR_ERR(ROOM_FLOOR_MIN_VALUE, ROOM_FLOOR_MAX_VALUE), ADDROOM_INP_FLOOR, ROOM_FLOOR_MIN_VALUE, ROOM_FLOOR_MAX_VALUE);
 
 	cout << ADDROOM_INP_SEATS;
-	GET_INPUT(room.seat_capacity, ADDROOM_INP_SEATS_ERR(INT_MAX), ADDROOM_INP_SEATS);
+	GET_INPUT(room.seat_capacity, ADDROOM_INP_SEATS_ERR(ROOM_SEATS_MAX_VALUE), ADDROOM_INP_SEATS, ROOM_SEATS_MIN_VALUE, ROOM_SEATS_MAX_VALUE);
 
 	cout << ADDROOM_INP_PRICE;
-	GET_INPUT(room.reservation_price, ADDROOM_INP_PRICE_ERR(INT_MAX), ADDROOM_INP_PRICE);
+	GET_INPUT(room.reservation_price, ADDROOM_INP_PRICE_ERR(ROOM_PRICE_MAX_VALUE), ADDROOM_INP_PRICE, ROOM_PRICE_MIN_VALUE, ROOM_PRICE_MAX_VALUE);
 
-	cout << "Cislo mistnosti: " << room.room_number << endl
-		<< "Patro: " << room.floor << endl
-		<< "Kapacita sedadel: " << room.seat_capacity << endl
-		<< "Cena za den rezervace " << room.reservation_price << endl;
+	cout << ROOM_DESCRIPTION << room.room_number << endl
+		<< FLOOR_DESCRIPTION << room.floor << endl
+		<< SEATS_DESCRIPTION << room.seat_capacity << endl
+		<< PRICE_DESCRIPTION << room.reservation_price << endl;
 
 	cout << endl << ADDROOM_INP_CONFIRM << endl;
 
 	if (YesNoCheck())
 	{
-		if (!CheckRoomsIntegrity(path, data))
+		if (!CheckRoomsIntegrity(path, rooms))
 		{
 			return false;
 		}
 
-		if (RoomExists(room.room_number, data))
+		if (RoomExists(room.room_number, rooms))
 		{
 			cout << ADDROOM_ROOMNUM_EXISTS(room.room_number) << endl;
 			return false;
 		}
 
-		room.id = data.back().id + 1;
-		data.push_back(room);
+		room.id = rooms.back().id + 1;
+		rooms.push_back(room);
 
 		AppendRecordToRoomFile(path, room);
 	}
@@ -613,9 +706,18 @@ bool AddNewRoom(string &path, vector <Room> &data)
 	return true;
 }
 
-bool CheckRoomsIntegrity(string &path, vector <Room> &data)
+///
+/// @brief	Funkce, ktera zkontroluje integritu mezi daty v aplikaci a CSV souboru
+/// @param	path	Cesta k souboru, ktery obsahuje seznam mistnosti
+/// @param	rooms	Vektor s mistnostmi, ktery se ma naplnit
+/// @retval	true	Funkce vraci hodnotu true, jestlize jsou data v souboru stejna jako v aplikaci
+/// @retval	false	Funkce vraci hodnotu false, jestlize nastal problem pri kontrole
+///
+
+bool CheckRoomsIntegrity(string &path, vector <Room> &rooms)
 {
 	ifstream file;
+	Room room;
 	bool passed = true;
 	string s;
 	unsigned int file_records = 0;
@@ -638,59 +740,21 @@ bool CheckRoomsIntegrity(string &path, vector <Room> &data)
 		}
 	}
 
-	if (data.size() == file_records)
+	if (rooms.size() == file_records)
 	{
-		int position = 0;
+		unsigned int position = 0;
 		file.clear();
 		file.seekg(0, ios::beg);
 		getline(file, s);
 
 		while (getline(file, s))
 		{
-			istringstream line(s);
+			room = ParserRoom(s);
 
-			getline(line, s, ';');
-			if (atoi(s.c_str()) != data[position].id)
+			if (!RoomComparator(room, rooms[position]))
 			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKROOMINTEGRITY_DETAIL(position + 2, "id");
-				cout << endl;
-				passed = false;
-			}
-
-			getline(line, s, ';');
-			if (atoi(s.c_str()) != data[position].floor)
-			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKROOMINTEGRITY_DETAIL(position + 2, "patro");
-				cout << endl;
-				passed = false;
-			}
-
-			getline(line, s, ';');
-			if (atoi(s.c_str()) != data[position].room_number)
-			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKROOMINTEGRITY_DETAIL(position + 2, "mistnost");
-				cout << endl;
-				passed = false;
-			}
-
-			getline(line, s, ';');
-			if (atoi(s.c_str()) != data[position].seat_capacity)
-			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKROOMINTEGRITY_DETAIL(position + 2, "kapacita");
-				cout << endl;
-				passed = false;
-			}
-
-			getline(line, s, ';');
-			if (atoi(s.c_str()) != data[position].reservation_price)
-			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
-				cout << CHECKROOMINTEGRITY_DETAIL(position + 2, "cena");
-				cout << endl;
+				cout << (passed ? CHECKINTEGRITY_ERROR : "");
+				cout << CHECKROOMINTEGRITY_DETAIL(position + 2) << endl;
 				passed = false;
 			}
 			position++;
@@ -706,16 +770,16 @@ bool CheckRoomsIntegrity(string &path, vector <Room> &data)
 
 	if (!passed)
 	{
-		cout << CHECKROOMINTEGRITY_ADD << endl;
+		cout << CHECKINTEGRITY_ADD << endl;
 		if (YesNoCheck())
 		{
-			data.clear();
-			FillRoomsStructure(path, data);
-			cout << CHECKROOMINTEGRITY_SUCCESS << endl;
+			rooms.clear();
+			FillRoomsStructure(path, rooms);
+			cout << CHECKINTEGRITY_SUCCESS << endl;
 		}
 		else
 		{
-			SaveRoomsStructure(path, data);
+			SaveRoomsStructure(path, rooms);
 		}
 	}
 	return true;

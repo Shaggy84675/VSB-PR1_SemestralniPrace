@@ -17,6 +17,102 @@
 #include <cstdio>
 
 
+///
+/// @brief Funkce, ktera vytvori HTML soubor s danymi mistnostmi a daty rezervaci
+/// @param	rooms			Vektor s ulozenymi mistnostmi
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @retval true			Funkce vraci hodnotu true, jestlize se podari vytvorit soubor s HTML obsahem
+/// @retval false			Funkce vraci hodnotu false, pri vytvareni HTML souboru nastane chyba
+///
+
+bool ExportToHtml(vector<Room> &rooms, vector<Reservation> &reservations)
+{
+	string path;
+	cout << HTMLEXPORT_CONFIRM;
+
+	if (YesNoCheck())
+	{
+		ofstream out;
+		unsigned int records = 0;
+
+		cout << FILE_INP;
+		cin.ignore(INT_MAX, '\n');
+		getline(cin, path);
+
+		if (cin.fail())
+		{
+			cout << FILE_INP_ERR << endl;
+			return false;
+		}
+
+		path += ".html";
+
+		out.open(path);
+
+		if (!out.is_open())
+		{
+			cout << ERROR_FILE_NOT_FOUND(path);
+			return false;
+		}
+
+		GenerateHTMLHeader(out);
+		out << "<h1>Seznam volnych mistnosti</h1>" << endl;
+		out << "<table><tr><th>" << TABLECELL_ROOM << "</th><th>" << TABLECELL_FLOOR << "</th><th>" << TABLECELL_SEATS << "</th><th>"
+			<< TABLECELL_PRICE << "</th><th>" << TABLECELL_RESERVEDATE << "</th></tr>" << endl;
+
+		for (unsigned int i = 0; i < rooms.size(); i++)
+		{
+			stringstream curr;
+			records = 0;
+
+			curr << rooms[i].reservation_price << " " << CURRENCY;
+			out << "<td>" << rooms[i].room_number << "</td>"
+				<< "<td>" << rooms[i].floor << "</td>"
+				<< "<td>" << rooms[i].seat_capacity << "</td>"
+				<< "<td>" << curr.str() << "</td>";
+
+			for (unsigned int j = 0; j < reservations.size(); j++)
+			{
+				if (records == 0 && rooms[i].id == reservations[j].id)
+				{
+					stringstream date;
+					date << reservations[j].day << ". " << GetMonthName(reservations[j].month) << " " << reservations[j].year;
+					out << "<td>" << date.str() << "</td>";
+					out << "</tr>" << endl;
+					records++;
+				}
+
+				else if (records > 0 && (rooms[i].id == reservations[j].id))
+				{
+					stringstream date;
+					date << reservations[j].day << ". " << GetMonthName(reservations[j].month) << " " << reservations[j].year;
+					out << "<td></td><td></td><td></td><td></td>"
+						<< "<td>" << date.str() << "</td>";
+					out << "</tr>" << endl;
+
+				}
+			}
+
+			if (records == 0)
+			{
+				out << "<td>-</td>";
+				out << "</tr>" << endl;
+			}
+		}
+		out << "</table>" << endl;
+		GenerateHTMLFooter(out);
+	}
+	return true;
+}
+
+///
+/// @brief Funkce, ktera porovnava dve struktury a zjistuje, zda jsou v techto strukturach stejna data
+/// @param reservation_old	Struktura s puvodnimi daty rezervaci
+/// @param reservation_new	Struktura s novymi daty rezervaci
+/// @retval true			Funkce vraci hodnotu true, jestlize data v porovnanych strukturach jsou stejna
+/// @retval false			Funkce vraci hodnotu false, jestlize data v porovnanych strukturach jsou odlisna
+///
+
 bool ReservationComparator(Reservation reservation_old, Reservation reservation_new)
 {
 	if (reservation_old.id != reservation_new.id)
@@ -42,23 +138,6 @@ bool ReservationComparator(Reservation reservation_old, Reservation reservation_
 	return true;
 }
 
-void GetTableRoomSeparator(const int size)
-{
-	cout << "+" << setw(size) << setfill('-') << right << "+" << endl;
-}
-
-void GetTableRoomHeader()
-{
-	cout << "| " << TABLECELL_ROOM << " | " << TABLECELL_FLOOR << " | " << TABLECELL_SEATS << " | " << TABLECELL_PRICE << " |  " << TABLECELL_RESERVEDATE << "  |" << endl;
-	cout << left << setw(11) << setfill('-') << "+"
-		<< left << setw(8) << setfill('-') << "+"
-		<< left << setw(19) << setfill('-') << "+"
-		<< left << setw(17) << setfill('-') << "+"
-		<< left << setw(20) << setfill('-') << "+"
-		<< left << "+" << endl;
-}
-
-
 ///
 /// @brief Funkce, ktera zjistuje datum rezervace na zaklade vstupu z konzole a nasledne ulozi do struktury Reservation
 /// @param	reservation	Struktura Reservation
@@ -69,9 +148,9 @@ Reservation GetReservationDate(Reservation &reservation)
 {
 	string fulldate;
 
+	cin.ignore(INT_MAX, '\n');
 	do
 	{
-		cin.ignore();
 		getline(cin, fulldate);
 
 		sscanf_s(fulldate.c_str(), "%hd.%hd.%hd", &reservation.day, &reservation.month, &reservation.year);
@@ -132,22 +211,22 @@ bool IsReservationValid(Reservation reservation)
 
 ///
 /// @brief Funkce, ktera zjisti pozici rezervace ve vektoru Reservation na zaklade zadaneho id a data
-/// @param	id		ID mistnosti
-/// @param	day		Den rezervace mistnosti
-/// @param	month	Mesic rezervace mistnosti
-/// @param	year	Rok rezervace mistnosti
-/// @param	data	Vektor s ulozenymi rezervacemi
+/// @param	id				ID mistnosti
+/// @param	day				Den rezervace mistnosti
+/// @param	month			Mesic rezervace mistnosti
+/// @param	year			Rok rezervace mistnosti
+/// @param	reservations	Vektor s ulozenymi rezervacemi
 /// @return	Funkce vraci index pozice rezervace ve vektoru. Pokud pozici nenalezne, vrati cislo -1.
 ///
 
-int FindReservationIndex(int id, short day, short month, short year, vector <Reservation> &data)
+int FindReservationIndex(int id, short day, short month, short year, vector <Reservation> &reservations)
 {
-	for (unsigned int i = 0; i < data.size(); i++)
+	for (unsigned int i = 0; i < reservations.size(); i++)
 	{
-		if (data[i].id == id &&
-			data[i].day == day &&
-			data[i].month == month &&
-			data[i].year == year)
+		if (reservations[i].id == id &&
+			reservations[i].day == day &&
+			reservations[i].month == month &&
+			reservations[i].year == year)
 		{
 			return i;
 		}
@@ -156,6 +235,12 @@ int FindReservationIndex(int id, short day, short month, short year, vector <Res
 }
 
 ///
+/// @brief Funkce, ktera zrusi stavajici rezervaci
+/// @param	path			Cesta k souboru, ktery obsahuje seznam rezervaci
+/// @param	rooms			Vektor s ulozenymi mistnostmi
+/// @param	reservations	Vektor s ulozenymi rezervacemi
+/// @retval	true			Funkce vraci hodnotu true, jestlize se uspesne podari rezervaci zrusit
+/// @retval false			Funkce vraci hodnotu false s chybovou hlaskou, ktera definuje proc se rezervaci nepodarilo zrusit
 ///
 
 bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> &reservations)
@@ -164,7 +249,7 @@ bool CancelReservation(string &path, vector <Room> &rooms, vector <Reservation> 
 	Reservation reservation;
 
 	cout << CANCELRESERVATION_INP_ROOMNUM;
-	GET_INPUT(room.room_number, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), CANCELRESERVATION_INP_ROOMNUM);
+	GET_INPUT(room.room_number, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), CANCELRESERVATION_INP_ROOMNUM, ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE);
 
 	reservation.id = FindRoomID(room.room_number, rooms);
 
@@ -238,7 +323,7 @@ bool MakeReservation(string &path, vector <Room> &rooms, vector <Reservation> &r
 
 
 	cout << CREATERESERVATION_INP_ROOMNUM;
-	GET_INPUT(room.room_number, ROOM_INP_ERR(INT_MIN, INT_MAX), CREATERESERVATION_INP_ROOMNUM);
+	GET_INPUT(room.room_number, ROOM_INP_ERR(ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE), ADDROOM_INPUT, ROOM_ROOMNUM_MIN_VALUE, ROOM_ROOMNUM_MAX_VALUE);
 
 	reservation.id = FindRoomID(room.room_number, rooms);
 
@@ -268,7 +353,6 @@ bool MakeReservation(string &path, vector <Room> &rooms, vector <Reservation> &r
 		}
 
 		reservations.push_back(reservation);
-		// Pokud zbyde èas, pøidat do zvláštní funkce
 		if (!AppendRecordToReservationFile(path, reservation))
 		{
 			return false;
@@ -283,49 +367,59 @@ bool MakeReservation(string &path, vector <Room> &rooms, vector <Reservation> &r
 }
 
 ///
+/// @brief Funkce, ktera vypise tabulku vsech rezervaci vcetne data na kdy je mistnost rezervovana
+/// @param	rooms			Vektor s ulozenymi mistnostmi
+/// @param	reservations	Vektor s ulozenymi rezervacemi
 ///
 
-void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &reservations_data)
+void PrintReservationsTable(vector <Room> &rooms, vector <Reservation> &reservations)
 {
 	unsigned int records = 0;
 
-	GetTableRoomSeparator(75);
-	GetTableRoomHeader();
+	GetTableSeparator(75);
 
-	for (unsigned int i = 0; i < rooms_data.size(); i++)
+	cout << "| " << TABLECELL_ROOM << " | " << TABLECELL_FLOOR << " | " << TABLECELL_SEATS << " | " << TABLECELL_PRICE << " |  " << TABLECELL_RESERVEDATE << "  |" << endl;
+	cout << left << setw(11) << setfill('-') << "+"
+		<< left << setw(8) << setfill('-') << "+"
+		<< left << setw(19) << setfill('-') << "+"
+		<< left << setw(17) << setfill('-') << "+"
+		<< left << setw(20) << setfill('-') << "+"
+		<< left << "+" << endl;
+
+	for (unsigned int i = 0; i < rooms.size(); i++)
 	{
 		stringstream curr;
 		records = 0;
 
-		curr << rooms_data[i].reservation_price << " " << CURRENCY;
-		cout << left << "| " << setw(9) << setfill(' ') << rooms_data[i].room_number
-			<< left << "| " << setw(6) << setfill(' ') << rooms_data[i].floor
-			<< left << "| " << setw(17) << setfill(' ') << rooms_data[i].seat_capacity
+		curr << rooms[i].reservation_price << " " << CURRENCY;
+		cout << left << "| " << setw(9) << setfill(' ') << rooms[i].room_number
+			<< left << "| " << setw(6) << setfill(' ') << rooms[i].floor
+			<< left << "| " << setw(17) << setfill(' ') << rooms[i].seat_capacity
 			<< right << "| " << setw(14) << setfill(' ') << curr.str() << " ";
 
-		for (unsigned int j = 0; j < reservations_data.size(); j++)
+		for (unsigned int j = 0; j < reservations.size(); j++)
 		{
-			if (records == 0 && rooms_data[i].id == reservations_data[j].id)
+			if (records == 0 && rooms[i].id == reservations[j].id)
 			{
 				stringstream date;
-				date << reservations_data[j].day << ".";
+				date << reservations[j].day << ".";
 				cout << left << "| " << setw(3) << setfill(' ') << date.str()
-					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations_data[j].month)
-					<< left << " " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
+					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations[j].month)
+					<< left << " " << setw(4) << setfill(' ') << reservations[j].year << " |" << endl;
 				records++;
 			}
 			
-			else if (records > 0 && (rooms_data[i].id == reservations_data[j].id))
+			else if (records > 0 && (rooms[i].id == reservations[j].id))
 			{
 				stringstream date;
-				date << reservations_data[j].day << ".";
+				date << reservations[j].day << ".";
 				cout << left << "| " << setw(9) << setfill(' ') << ""
 					<< left << "| " << setw(6) << setfill(' ') << ""
 					<< left << "| " << setw(17) << setfill(' ') << ""
 					<< left << "| " << setw(15) << setfill(' ') << ""
 					<< left << "| " << setw(3) << setfill(' ') << date.str()
-					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations_data[j].month)
-					<< left << " " << setw(4) << setfill(' ') << reservations_data[j].year << " |" << endl;
+					<< left << " " << setw(8) << setfill(' ') << GetMonthName(reservations[j].month)
+					<< left << " " << setw(4) << setfill(' ') << reservations[j].year << " |" << endl;
 			}			
 		}
 
@@ -335,7 +429,7 @@ void PrintReservationsTable(vector <Room> &rooms_data, vector <Reservation> &res
 		}
 	}
 
-	GetTableRoomSeparator(75);
+	GetTableSeparator(75);
 }
 
 ///
@@ -451,7 +545,7 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &reservations
 
 			if (!ReservationComparator(reservation, reservations[position]))
 			{
-				cout << (passed ? CHECKROOMINTEGRITY_ERROR : "");
+				cout << (passed ? CHECKINTEGRITY_ERROR : "");
 				cout << CHECKRESERVATIONINTEGRITY_DETAIL(position) << endl;
 				passed = false;
 			}
@@ -468,12 +562,12 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &reservations
 
 	if (!passed)
 	{
-		cout << CHECKROOMINTEGRITY_ADD;
+		cout << CHECKINTEGRITY_ADD;
 		if (YesNoCheck())
 		{
 			reservations.clear();
 			FillReservationsStructure(path, reservations);
-			cout << CHECKROOMINTEGRITY_SUCCESS << endl;
+			cout << CHECKINTEGRITY_SUCCESS << endl;
 		}
 		else
 		{
@@ -485,11 +579,12 @@ bool CheckReservationsIntegrity(string &path, vector <Reservation> &reservations
 
 ///
 /// @brief Funkce pro vypsani obsahu struktury Reservation z vektoru, ktery byl naplnen CSV souborem
+/// @param	reservations	Vektor s ulozenymi rezervacemi
 ///
 
 void PrintReservations(vector <Reservation> &reservations)
 {
-	GetTableRoomSeparator(27);
+	GetTableSeparator(27);
 	cout << "|   " << TABLECELL_ID << "   | " << TABLECELL_RESERVEDATE << " |" << endl;
 	cout << left << setw(9) << setfill('-') << "+"
 		<< left << setw(18) << setfill('-') << "+"
@@ -504,7 +599,7 @@ void PrintReservations(vector <Reservation> &reservations)
 		cout << left << "| " << setw(7) << setfill(' ') << reservations[i].id;
 		cout << left << "| " << setw(16) << setfill(' ') << date.str() << "|" << endl;
 	}
-	GetTableRoomSeparator(27);
+	GetTableSeparator(27);
 }
 
 ///

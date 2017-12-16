@@ -1,3 +1,10 @@
+///
+/// @brief Soubor obsahuje funkce pro vypisovani nabidek
+/// @author Patrik Leifert
+/// @file message.cpp
+/// @date Prosinec 2017
+///
+
 #include "message.h"
 
 #include <iostream>
@@ -5,6 +12,10 @@
 
 
 using namespace std;
+
+///
+/// @brief Funkce, ktera vypise podnabidku k vyhledavani mistnosti
+///
 
 void PrintSubMenu()
 {
@@ -14,16 +25,21 @@ void PrintSubMenu()
 		<< "d - Vyhledat mistnosti nad urcitou kapacitu osob" << endl
 		<< "e - Vyhledat mistnosti na konkretnim patre" << endl
 		<< "f - Vyhledat vsechny volne mistnosti" << endl
+		<< "g - Vyhledat vsechny nejblizsi rezervace" << endl
 		<< "q - Vratit se do hlavni nabidky" << endl
 		<< setw(74) << setfill('-') << "" << endl
 		<< "Vyberte moznost ze seznamu, kterou chcete provest: ";
 }
 
+///
+/// @brief Funkce, ktera vypise zakladni nabidku programu
+///
+
 void PrintMainMenu()
 {
 	cout << "1 - Rezervovat mistnost" << endl
 		<< "2 - Zrusit rezervaci" << endl
-		<< "3 - Vyhledat volne mistnosti" << endl
+		<< "3 - Vyhledat mistnosti" << endl
 		<< "4 - Zobrazit tabulku mistnosti" << endl
 		<< "5 - Zobrazit tabulku rezervaci" << endl
 		<< "6 - Pridat novou mistnost" << endl
@@ -32,6 +48,10 @@ void PrintMainMenu()
 		<< setw(74) << setfill('-') << "" << endl
 		<< "Vyberte moznost ze seznamu, kterou chcete provest: ";
 }
+
+///
+/// @brief Funkce, ktera vypise nazev a autora programu
+///
 
 void WelcomeMessage()
 {

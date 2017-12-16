@@ -1,4 +1,14 @@
+///
+/// @brief Hlavickovy soubor, ktery obsahuje seznam vsech hlasek, ktere se vyskytuji v programu a deklarace pro praci s programem
+/// @author Patrik Leifert
+/// @file message.h
+/// @date Prosinec 2017
+///
+
 #pragma once
+
+#define INP_PARAMETERS_ERR								"Neco se nepovedlo :( \nNebyly zadany spravne vstupni parametry \nJe potreba zadat spravnou cestu k \nCSV souborum se seznamem mistnosti a rezervaci\n" \
+														"Spravne pouziti: \nsemestralniPrace.exe	\"seznam_mistnosti.csv\" \"seznam_rezervace.csv\""
 
 #define ERROR_FILE_NOT_FOUND(filename)					"Neco se nepovedlo :( \nMame problemy nalezt potrebny soubor " << filename << \
 														" umisteny v adresari vstupnidata. \nProsim zkontrolujte dostupnost souboru a zkuste to znovu."
@@ -8,7 +18,10 @@
 #define INP_ERR											"Byla zadana chybna moznost. \nProsim zadejte nasledujici moznosti: "
 #define INP_DATE_INVALID								"Bylo zadano spatne datum"
 
-#define PRESS_ANY_KEY									"Stisknete libovolnou klavesu pro ukonceni programu..."
+#define PRESS_ANY_KEY									"Stisknete Enter pro ukonceni programu..."
+
+#define	FILE_INP										"Zadejte nazev souboru (bez pripony): "
+#define FILE_INP_ERR									"Neco se nepovedlo :( \nNastala chyba pri zadavani nazvu souboru."
 
 //Zpravy pro praci s mistnostmi
 
@@ -20,7 +33,7 @@
 //
 
 #define ADDROOM_INPUT									"Zadejte cislo mistnosti, kterou chcete pridat: " 
-#define ADDROOM_ROOMNUM_EXISTS(room)					"Mistnost " << room << " jiz v seznamu mistnosti je"
+#define ADDROOM_ROOMNUM_EXISTS(room)					"Mistnost " << room << " se jiz v seznamu nachazi"
 
 #define ADDROOM_INP_FLOOR								"Zadejte patro mistnosti: "
 #define ADDROOM_INP_FLOOR_ERR(inpmin, inpmax)			"Zadano chybne patro mistnosti \nPatro musi byt v cele cislo v rozmezi od " << inpmin << " do " << inpmax
@@ -35,10 +48,11 @@
 #define ADDROOM_CANCELED								"Pridani mistnosti bylo zruseno"
 #define ADDROOM_SUCCESS									"Mistnost byla uspesne pridana do seznamu mistnosti"
 
+
 #define REMOVEROOM_SELECT								"Zadejte kriterium, podle ktereho si prejete mistnost odstranit: \na) ID mistnosti \nb) Cislo mistnosti"
 #define REMOVEROOM_INPUT								"Zadejte cislo mistnosti, kterou chcete odstranit: "
-
-
+#define REMOVEROOM_INP_CONFIRM(room)					"Prejete si nasledujici mistnost " << room << " odstranit z databaze? (A/N): "
+#define REMOVEROOM_CANCELED								"Odstraneni mistnosti bylo zruseno"
 
 #define CREATERESERVATION_INP_ROOMNUM					"Zadejte cislo mistnosti, kterou si prejete rezervovat: "
 #define CREATERESERVATION_NOT_AVAILABLE					"Zadana mistnost je jiz bohuzel na dany den obsazena"
@@ -53,15 +67,15 @@
 #define CANCELRESERVATION_SUCCESS						"Rezervace mistnosti byla uspesne zrusena"
 #define CANCELRESERVATION_CANCELED						"Zruseni rezervace mistnosti bylo zruseno"
 
+//Kontrola integrity
 
-#define CHECKINTEGRITY_ERROR							"Neco se nepovedlo :( \nNekonzistentni data. Zkontrolujte obsah vstupnich dat a akci opakujte."
+#define CHECKINTEGRITY_ERROR							"Neco se nepovedlo :( \nNesouhlasi data ze souboru s daty v programu. \nPravdepodobne doslo ke zmene dat pri behu programu. \n"
+#define CHECKINTEGRITY_ADD								"Prejete si upravena data v souboru nahrat do programu a prepsat? (A/N) \nV pripade ze zvolite ne, budou data v souboru prepsana zpet: "
+#define CHECKINTEGRITY_SUCCESS							"Data ze souboru byly uspesne nahrany do programu "
 
-#define CHECKROOMINTEGRITY_ERROR						"Neco se nepovedlo :( \nNesouhlasi data ze souboru s daty v programu. \nPravdepodobne doslo ke zmene dat pri behu programu. \n"
-#define CHECKROOMINTEGRITY_DETAIL(row, column)			"Radek v souboru se seznamem mistnosti: " << row << " polozka: " << column
-#define CHECKROOMINTEGRITY_ADD							"Prejete si upravena data v souboru nahrat do programu a prepsat? (A/N) \nV pripade ze zvolite ne, budou data v souboru prepsana zpet: "
-#define CHECKROOMINTEGRITY_SUCCESS						"Data ze souboru byly uspesne nahrany do programu "
-
+#define CHECKROOMINTEGRITY_DETAIL(row)					"Radek v souboru se seznamem mistnosti: " << row
 #define CHECKRESERVATIONINTEGRITY_DETAIL(row)			"Radek v souboru se seznamem rezervaci: " << row
+
 
 #define SELECTFREEROOMS_FLOOR_INP						"Zadejte patro na kterem si prejete volne mistnosti vyhledat: "
 #define SELECTFREEROOMS_DATE_INP						"Zadejte datum ve formatu (DD.MM.YYYY) nebo (D.M.YYYY) na ktere si prejete volne mistnosti vyhledat: "
@@ -75,6 +89,11 @@
 #define TABLECELL_FLOOR									"Patro"
 #define TABLECELL_SEATS									"Kapacita sedadel"
 #define TABLECELL_PRICE									"Cena rezervace"
+
+#define ROOM_DESCRIPTION								"Cislo mistnosti: "
+#define FLOOR_DESCRIPTION								"Patro: "
+#define SEATS_DESCRIPTION								"Kapacita sedadel: "
+#define PRICE_DESCRIPTION								"Cena za den rezervace: "
 
 #define HTMLEXPORT_CONFIRM								"Prejete si nasledujici tabulku vyexportovat do HTML? (A/N): "
 

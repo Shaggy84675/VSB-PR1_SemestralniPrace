@@ -1,3 +1,10 @@
+///
+/// @brief Hlavickovy soubor, ktery obsahuje deklarace pro praci s rezervacemi
+/// @author Patrik Leifert
+/// @file reservation.h
+/// @date Prosinec 2017
+///
+
 #pragma once
 
 #include <string>
@@ -7,11 +14,15 @@ using namespace std;
 
 struct Room;
 
+///
+/// @struct Reservation
+/// @brief Struktura obsahujici seznam rezervaci
+///
 struct Reservation {
-	int id;
-	short day;
-	short month;
-	short year;
+	int id;			///< Unikatni ID pro identifikaci mistnosti
+	short day;		///< Den rezervace
+	short month;	///< Mesic rezervace
+	short year;		///< Rok rezervace
 };
 
 #define RESERVATION_ID_MIN_VALUE		1
@@ -36,5 +47,4 @@ bool IsReservationValid(Reservation reservation);
 bool AppendRecordToReservationFile(string &path, Reservation &reservation);
 Reservation ParserReservation(string row);
 Reservation GetReservationDate(Reservation &reservation);
-void GetTableRoomHeader();
-void GetTableRoomSeparator(const int size);
+bool ExportToHtml(vector<Room> &rooms, vector<Reservation> &reservations);

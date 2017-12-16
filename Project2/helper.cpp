@@ -1,13 +1,38 @@
+///
+/// @brief Soubor obsahuje obecne funkce pro praci s programem
+/// @author Patrik Leifert
+/// @file helper.cpp
+/// @date Prosinec 2017
+///
+
 #include "helper.h"
 #include "message.h"
 
 #include <iostream>
+#include <iomanip>
 
+///
+/// @brief Funkce, ktera oddeluje casti tabulky
+/// @param size	Obsahuje cislo, ktere urcuje delku oddelovace
+///
+
+void GetTableSeparator(const int size)
+{
+	cout << "+" << setw(size) << setfill('-') << right << "+" << endl;
+}
+
+///
+/// @brief Funkce, ktera generuje paticku pro HTML soubor
+///
 
 void GenerateHTMLFooter(ofstream &out)
 {
 	out << "<p>Vygenerovano programem: Rezervace mistnosti</p></html>";
 }
+
+///
+/// @brief Funkce, ktera generuje hlavicku pro HTML soubor
+///
 
 void GenerateHTMLHeader(ofstream &out)
 {
@@ -19,6 +44,15 @@ void GenerateHTMLHeader(ofstream &out)
 		tr:nth-child(even) {background-color: #ABABAB;}</style></head>" << endl;
 }
 
+///
+/// @brief Funkce, ktera zjistuje, jestli je datum validni
+/// @param day		Den
+/// @param month	Mesic
+/// @param year		Rok
+/// @retval true	Funkce vraci hodnotu true, jestlize je datum ve spravnem formatu
+/// @retval false	Funkce vraci hodnotu false, jestlize je datum ve spatnem formatu
+///
+
 bool IsDateValid(short day, short month, short year)
 {
 	if ((day > RESERVATION_DAY_MAX_VALUE || day < RESERVATION_DAY_MIN_VALUE) ||
@@ -29,6 +63,11 @@ bool IsDateValid(short day, short month, short year)
 	}
 	return true;
 }
+
+///
+/// @brief Funkce, ktera vraci jmeno mesice na zaklade cisla mesice
+/// @return Funkce vraci nazev mesice
+///
 
 string GetMonthName(int month)
 {
@@ -64,6 +103,11 @@ string GetMonthName(int month)
 	}
 }
 
+///
+/// @brief Funkce, pro vybrani moznosti ano nebo ne
+/// @retval true	Funkce vraci hodnotu true, jestlize bylo zadano na vstupu pismeno a
+/// @retval false	Funkce vraci hodnotu false, jestlize bylo zadano na vstupu pismeno n
+///
 
 bool YesNoCheck()
 {
@@ -91,6 +135,11 @@ bool YesNoCheck()
 	return false;
 }
 
+///
+/// @brief Funkce, pro vybrani moznosti v hlavni nabidce
+/// @return Funkce vraci pismeno s vybranou moznosti
+///
+
 int ShowMainMenu()
 {
 	int option;
@@ -110,6 +159,11 @@ int ShowMainMenu()
 	return option;
 }
 
+///
+/// @brief Funkce, pro vybrani moznosti v podmenu vyhledavani mistnosti
+/// @return Funkce vraci pismeno s vybranou moznosti
+///
+
 char ShowSubMenu()
 {
 	char option;
@@ -117,6 +171,11 @@ char ShowSubMenu()
 
 	while (!(cin >> option) || (option > LAST_OPTION || option < FIRST_OPTION)) {
 		cin.clear();
+
+		if (option == QUIT_OPTION)
+		{
+			break;
+		}
 
 		while (cin.get() != '\n')
 		{

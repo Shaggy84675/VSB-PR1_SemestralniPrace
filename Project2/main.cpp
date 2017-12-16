@@ -1,3 +1,9 @@
+///
+/// @brief Hlavni soubor, ktery je potreba ke spusteni programu
+/// @author Patrik Leifert
+/// @file main.cpp
+/// @date Prosinec 2017
+///
 #include <iostream>
 
 #include "message.h"
@@ -5,13 +11,26 @@
 #include "reservation.h"
 #include "helper.h"
 
-int main()
+int main(int argc, char* argv[])
 {
+	string rooms_path;
+	string reservations_path;
 	vector <struct Room> rooms;
 	vector <struct Reservation> reservations;
 
-	string rooms_path = "D:/Desktop/Semestrální práce - Programování 1/vstupnidata/seznam_mistnosti.csv";
-	string reservations_path = "D:/Desktop/Semestrální práce - Programování 1/vstupnidata/seznam_rezervaci.csv";
+	if (argc != 3)
+	{
+		cout << INP_PARAMETERS_ERR << endl;
+		cout << PRESS_ANY_KEY << endl;
+		getchar();
+		return 0;
+	}
+
+	rooms_path = argv[1];
+	reservations_path = argv[2];
+
+	//string rooms_path = "D:/Desktop/Semestrální práce - Programování 1/vstupnidata/seznam_mistnosti.csv";
+	//string reservations_path = "D:/Desktop/Semestrální práce - Programování 1/vstupnidata/seznam_rezervaci.csv";
 	//string rooms_path = "seznam_mistnosti.csv";
 	//string reservations_path = "seznam_rezervaci.csv";
 
@@ -57,13 +76,15 @@ int main()
 			cout << endl;
 			break;
 		case SEARCH_FREE_ROOMS:
-			selectFreeRooms(rooms, reservations);
+			SubMenuSelection(rooms, reservations);
 			break;
 		case SHOW_ROOMS_TABLE:
+			CheckRoomsIntegrity(rooms_path, rooms);
 			PrintRoomsTable(rooms);
 			cout << endl;
 			break;
 		case SHOW_RESERVATIONS_TABLE:
+			CheckReservationsIntegrity(reservations_path, reservations);
 			PrintReservations(reservations);
 			cout << endl;
 			break;

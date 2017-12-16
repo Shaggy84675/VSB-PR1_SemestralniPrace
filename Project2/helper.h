@@ -1,3 +1,10 @@
+///
+/// @brief Hlavickovy soubor, ktery obsahuje obecne deklarace pro praci s programem
+/// @author Patrik Leifert
+/// @file helper.h
+/// @date Prosinec 2017
+///
+
 #pragma once
 
 #include "room.h"
@@ -9,7 +16,7 @@
 
 #define NUMBER_OF_OPTIONS 8
 #define FIRST_OPTION 'a'
-#define LAST_OPTION 'f'
+#define LAST_OPTION 'g'
 #define QUIT_OPTION 'q'
 #define CURRENCY "CZK"
 
@@ -24,8 +31,8 @@
 
 
 
-#define GET_INPUT(var, msg1, msg2) \
-while (!(cin >> var)) \
+#define GET_INPUT(var, msg1, msg2, min_value, max_value) \
+while (!(cin >> var) || (var > max_value || var < min_value)) \
 { \
 	cin.clear(); \
 	while (cin.get() != '\n') { continue; } \
@@ -43,3 +50,4 @@ bool YesNoCheck();
 char ShowSubMenu();
 void GenerateHTMLHeader(ofstream &out);
 void GenerateHTMLFooter(ofstream &out);
+void GetTableSeparator(const int size);
